@@ -1,5 +1,16 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
+﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<RegistrationModel> signInManager;
+@using StudentManagement.Models;
+@using StudentManagement.ViewModel;
+
+<ul class="navbar-nav ms-auto">
+	@if(signInManager.IsSignedIn(User))
+	{
+		<li class="nav-item">
+			<a class="nav-link btn btn-sm btn-light text-dark border" style="margin-right:15px; font-size:15px;" asp-controller="Account" asp-action="Logout">Logout</a>
+
+		</li>
+
+	}
+
+</ul>

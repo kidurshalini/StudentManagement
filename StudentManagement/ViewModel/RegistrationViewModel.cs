@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace StudentManagement.ViewModel
 {
@@ -31,7 +32,8 @@ namespace StudentManagement.ViewModel
         [StringLength(10, MinimumLength = 10, ErrorMessage = "Phone number must be exactly 10 digits.")]
         [RegularExpression(@"^\d{10}$", ErrorMessage = "Phone number must be exactly 10 digits.")]
         [DataType(DataType.PhoneNumber)]
-        public string PhoneNumber { get; set; }
+        [ProtectedPersonalData]
+        public virtual string? PhoneNumber { get; set; }
 
         [Required]
         [Display(Name = "Address")]

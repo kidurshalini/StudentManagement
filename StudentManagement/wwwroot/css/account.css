@@ -53,6 +53,17 @@
         background-color: #218838;
     }
 
+.btn-primary {
+    width: 100%;
+    padding: 0.5rem 0;
+    font-size: 1.1rem;
+    border-radius: 4px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+    .btn-primary:hover {
+        background-color: #218838;
+    }
 
 .float-end {
     margin-top: -10px;
@@ -65,11 +76,31 @@
     font-size: 0.9rem;
 }
 
-body {
+.bodystyle {
     background-color: rgb(174,223,221);
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
     margin: 0;
+}
+
+* {
+    font-family: Roboto;
+}
+
+.small-btn {
+    width: 0.75em;
+    height: 0.75em;
+    font-size: 0.75em; /* Adjust icon size */
+}
+
+.alert-container {
+    display: flex;
+    justify-content: center;
+}
+
+.custom-alert {
+    width: 50%; /* Adjust the width as needed */
+    text-align: center;
 }

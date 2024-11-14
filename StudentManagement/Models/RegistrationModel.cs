@@ -14,8 +14,7 @@ namespace StudentManagement.Models
 
         public DateTime DateOfBirth { get; set; }
 
-     
-
+    
         public int Age { get; set; }
 
       

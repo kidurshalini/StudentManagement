@@ -20,3 +20,151 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+label{
+    font-weight:550;
+}
+
+* {
+    font-family: Roboto;
+}
+
+a.navbar-brand {
+    font-family: 'Arial Black', sans-serif;
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #1b6ec2;
+    text-decoration: none;
+}
+
+a {
+    color: #0077cc;
+    text-decoration: none;
+}
+
+.btn-primary {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+    color: #fff;
+    background-color: #1b6ec2;
+    border-color: #1861ac;
+}
+
+.border-top {
+    border-top: 1px solid #e5e5e5;
+}
+
+.border-bottom {
+    border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+    box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+    font-size: 1rem;
+    line-height: inherit;
+}
+
+.footer {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    white-space: nowrap;
+    line-height: 60px;
+}
+
+.navbar .container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.navbar-nav .nav-item .nav-link {
+    color: #0077cc; /* Default link color */
+    font-size: 20px; /* Adjusted font size */
+    font-weight: 500;
+    margin-right: 15px; /* Space between items */
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+
+    .navbar-nav .nav-item .nav-link:hover {
+        
+        transform: scale(1.1); /* Slight scale effect on hover */
+    }
+
+    .navbar-nav .nav-item .nav-link.active {
+        color: #fff;
+        background-color: #3399ff; /* Active link background color */
+        border-color: #1861ac;
+    }
+
+.navbar {
+    background-color: #f8f9fa;
+    font-family: 'Arial', sans-serif;
+}
+
+.navbar-brand {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #1b6ec2;
+    text-align: center;
+}
+
+.navbar-collapse {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+}
+
+.navbar-nav {
+    padding-left: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+}
+
+.navbar-expand-lg .navbar-collapse {
+    flex-grow: 1;
+}
+
+.navbar-custom {
+    background-color: rgb(174, 223, 221); /* Light teal background */
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+label {
+    font-weight: 550;
+}
+
+* {
+    font-family: Roboto;
+}
+
+.alert-container {
+    display: flex;
+    justify-content: center;
+}
+
+.custom-alert {
+    width: 50%; /* Adjust the width as needed */
+    text-align: center;
+}
