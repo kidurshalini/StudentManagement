@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentManagement.Models;
 
@@ -11,9 +12,11 @@ using StudentManagement.Models;
 namespace StudentManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241116143204_ClassMigration")]
+    partial class ClassMigration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -275,25 +278,6 @@ namespace StudentManagement.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
-            modelBuilder.Entity("StudentManagement.Models.SubjectModel", b =>
-                {
-                    b.Property<Guid>("ID")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("GradeId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Subject")
-                        .HasColumnType("int");
-
-                    b.HasKey("ID");
-
-                    b.HasIndex("GradeId");
-
-                    b.ToTable("Subject");
-                });
-
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -356,22 +340,9 @@ namespace StudentManagement.Migrations
                     b.Navigation("Grade");
                 });
 
-            modelBuilder.Entity("StudentManagement.Models.SubjectModel", b =>
-                {
-                    b.HasOne("StudentManagement.Models.GradeModel", "Grade")
-                        .WithMany("Subject")
-                        .HasForeignKey("GradeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Grade");
-                });
-
             modelBuilder.Entity("StudentManagement.Models.GradeModel", b =>
                 {
                     b.Navigation("Class");
-
-                    b.Navigation("Subject");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using StudentManagement.Models;
+using System.Diagnostics;
 
 namespace StudentManagement.Common
 {
@@ -25,6 +28,33 @@ namespace StudentManagement.Common
                 {
                     await roleManager.CreateAsync(role);
                 }
+            }
+        }
+
+        public static void SeedGrades(ApplicationDbContext context)
+        {
+
+            context.Database.EnsureCreated();
+
+
+            if (!context.Grade.Any())
+            {
+                context.Grade.AddRange(
+                    new GradeModel { Grade = 1 },
+                    new GradeModel { Grade = 2 },
+                    new GradeModel { Grade = 3 },
+                    new GradeModel { Grade = 4 },
+                    new GradeModel { Grade = 5 },
+                    new GradeModel { Grade = 6 },
+                    new GradeModel { Grade = 7 },
+                    new GradeModel { Grade = 8 },
+                    new GradeModel { Grade = 9 },
+                    new GradeModel { Grade = 10 },
+                    new GradeModel { Grade = 11 },
+                    new GradeModel { Grade = 12 },
+                    new GradeModel { Grade = 13 }
+                );
+                context.SaveChanges();
             }
         }
     }

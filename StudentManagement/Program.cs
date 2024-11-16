@@ -6,26 +6,24 @@ using StudentManagement.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
+using System.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Database connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(connectionString));
 
-// Identity configuration
 builder.Services.AddIdentity<RegistrationModel, IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddDefaultTokenProviders();
 
-// Configure application cookie settings
 builder.Services.ConfigureApplicationCookie(options =>
 {
-    options.LoginPath = "/Account/Login";        // Redirect to login page if not authenticated
-    options.LogoutPath = "/Account/Logout";      // Redirect to logout action
-    options.AccessDeniedPath = "/Account/AccessDenied"; // Redirect if access is denied
+    options.LoginPath = "/Account/Login";    
+    options.LogoutPath = "/Account/Logout";    
+    options.AccessDeniedPath = "/Account/AccessDenied"; 
 
     options.Cookie.HttpOnly = true;
     options.Cookie.SameSite = Microsoft.AspNetCore.Http.SameSiteMode.Strict;
@@ -37,6 +35,7 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromMinutes(20);
 });
 
+
 // Add necessary services
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
@@ -45,7 +44,14 @@ var app = builder.Build();
 
 var serviceProvider = app.Services;
 
+using (var scope = app.Services.CreateScope())
+{
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    SeedData.SeedGrades(context);
+}
+
 await SeedData.SeedRole(serviceProvider);
+
 
 if (!app.Environment.IsDevelopment())
 {

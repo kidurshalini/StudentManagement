@@ -1,4 +1,7 @@
-﻿namespace StudentManagement.Common
+﻿using StudentManagement.Models;
+using System.Diagnostics;
+
+namespace StudentManagement.Common
 {
     public class ApplicationConstant
     {
@@ -15,4 +18,8 @@
         public static string Student = "STUDENT";
         public static string Teacher = "TEACHER";
     }
+
+   
+    
 }
+
