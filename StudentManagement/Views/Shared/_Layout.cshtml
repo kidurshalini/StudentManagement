@@ -12,7 +12,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light border-bottom box-shadow mb-3 navbar-custom">
+        <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3 navbar-custom">
             <div class="container-fluid">
                 <div style="text-align: center;">
                     <img src="~/Image/logo2.png" width="50px" height="50px" alt="Logo" />
@@ -38,6 +38,9 @@
                             
                             <li class="nav-item">
                                 <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Account" asp-action="Registration">Registration</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Subject" asp-action="Subject">Subject</a>
                             </li>
                         }
                         else if (User.IsInRole(StudentManagement.Common.CustomRole.Teacher))

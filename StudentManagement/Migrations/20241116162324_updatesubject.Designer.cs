@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using StudentManagement.Models;
 
@@ -11,9 +12,11 @@ using StudentManagement.Models;
 namespace StudentManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241116162324_updatesubject")]
+    partial class updatesubject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,9 +164,8 @@ namespace StudentManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Class")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Class")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("GradeId")
                         .HasColumnType("uniqueidentifier");
@@ -172,7 +174,7 @@ namespace StudentManagement.Migrations
 
                     b.HasIndex("GradeId");
 
-                    b.ToTable("Class", (string)null);
+                    b.ToTable("Class");
                 });
 
             modelBuilder.Entity("StudentManagement.Models.GradeModel", b =>
@@ -186,7 +188,7 @@ namespace StudentManagement.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Grades", (string)null);
+                    b.ToTable("Grade");
                 });
 
             modelBuilder.Entity("StudentManagement.Models.RegistrationModel", b =>
@@ -285,9 +287,6 @@ namespace StudentManagement.Migrations
                     b.Property<Guid>("GradeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("GradeModelID")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Subject")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -296,9 +295,7 @@ namespace StudentManagement.Migrations
 
                     b.HasIndex("GradeId");
 
-                    b.HasIndex("GradeModelID");
-
-                    b.ToTable("Subject", (string)null);
+                    b.ToTable("Subject");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -366,14 +363,10 @@ namespace StudentManagement.Migrations
             modelBuilder.Entity("StudentManagement.Models.SubjectModel", b =>
                 {
                     b.HasOne("StudentManagement.Models.GradeModel", "Grade")
-                        .WithMany()
+                        .WithMany("Subject")
                         .HasForeignKey("GradeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("StudentManagement.Models.GradeModel", null)
-                        .WithMany("Subject")
-                        .HasForeignKey("GradeModelID");
 
                     b.Navigation("Grade");
                 });

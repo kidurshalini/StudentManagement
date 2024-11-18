@@ -6,11 +6,11 @@ namespace StudentManagement.Models
     {
         public Guid ID { set; get; }
 
-        public int Class { get; set; }
+        public string Class { get; set; }
 
         public Guid GradeId { get; set; }
      
-        public GradeModel Grade { get; set; }
+        public GradeModel Grades { get; set; }
 
   
 

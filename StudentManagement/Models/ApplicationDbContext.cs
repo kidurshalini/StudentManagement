@@ -21,18 +21,19 @@ namespace StudentManagement.Models
             base.OnModelCreating(builder);
 
             builder.Entity<ClassModel>()
-             .HasOne(c => c.Grade)         // Class has one Grade
+             .HasOne(c => c.Grades)         // Class has one Grade
              .WithMany(g => g.Class)    // Grade has many Classes
              .HasForeignKey(c => c.GradeId); // Foreign Key in Class
 
             builder.Entity<SubjectModel>()
-            .HasOne(s => s.Grade)        
-            .WithMany(g => g.Subject)    
-            .HasForeignKey(s => s.GradeId); 
+			 .HasOne(s => s.Grades)
+		.WithMany()
+		.HasForeignKey(s => s.GradeId)
+		.OnDelete(DeleteBehavior.Cascade);
 
-        }
+		}
 
-        public DbSet<GradeModel> Grade { get; set; }
+        public DbSet<GradeModel> Grades { get; set; }
 
         public DbSet<ClassModel> Class { get; set; }
 

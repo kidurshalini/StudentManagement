@@ -135,7 +135,7 @@ button.accept-policy {
 }
 
 .navbar-custom {
-    background-color: rgb(174, 223, 221); /* Light teal background */
+    background-color: #b0c4de; /* Light teal background */
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {

@@ -37,9 +37,9 @@ namespace StudentManagement.Common
             context.Database.EnsureCreated();
 
 
-            if (!context.Grade.Any())
+            if (!context.Grades.Any())
             {
-                context.Grade.AddRange(
+                context.Grades.AddRange(
                     new GradeModel { Grade = 1 },
                     new GradeModel { Grade = 2 },
                     new GradeModel { Grade = 3 },
