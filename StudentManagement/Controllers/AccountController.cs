@@ -6,45 +6,112 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
 using StudentManagement.Models;
-using StudentManagement.ViewModel; 
+using StudentManagement.ViewModel;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using StudentManagement.Controllers;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 
 namespace StudentManagement.Controllers
 {
     public class AccountController : Controller
     {
-
         private readonly UserManager<RegistrationModel> _userManager;
         private readonly SignInManager<RegistrationModel> _signInManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AccountController> _logger;
+        private readonly ApplicationDbContext _context;
 
         public AccountController(
-            UserManager<RegistrationModel> userManager,
-            SignInManager<RegistrationModel> signInManager,
-            RoleManager<IdentityRole> roleManager,
-              ILogger<AccountController> logger) 
+         UserManager<RegistrationModel> userManager,
+         SignInManager<RegistrationModel> signInManager,
+         RoleManager<IdentityRole> roleManager,
+         ILogger<AccountController> logger,
+         ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
+            _context = context;
         }
 
+        private async Task PopulateDropdowns(RegistrationViewModel model, Guid? selectedGradeId = null)
 
-        public IActionResult Registration()
+        {
+            model.Grades = await _context.Grades
+                .Select(g => new SelectListItem
+                {
+                    Value = g.ID.ToString(),
+                    Text = $"Grade {g.Grade}"
+                })
+                .ToListAsync();
+
+            if (selectedGradeId.HasValue)
+            {
+                model.Class = await _context.Class
+                    .Where(c => c.GradeId == selectedGradeId.Value) // Filter classes by selected grade
+                    .Select(c => new SelectListItem
+                    {
+                        Value = c.ID.ToString(),
+                        Text = $"Class {c.Class}"
+                    })
+                    .ToListAsync();
+            }
+            else
+            {
+                model.Class = new List<SelectListItem>
+                {
+                    new SelectListItem { Value = "", Text = "-- Select Class --" }
+                };
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Registration()
+        {
+            var viewModel = new RegistrationViewModel();
+            await PopulateDropdowns(viewModel);
+            return View(viewModel);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UpdateClasses(Guid gradeId)
+        {
+            // Ensure gradeId is valid
+            if (gradeId == Guid.Empty)
+            {
+                return Json(new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- No Classes Available --" }
+        });
+            }
+
+            // Fetch the classes associated with the grade
+            var classes = await _context.Class
+                .Where(c => c.GradeId == gradeId) // Filter by GradeId
+                .Select(c => new SelectListItem
+                {
+                    Value = c.ID.ToString(),
+                    Text = c.Class // Use the correct property name for class name
+                })
+                .ToListAsync();
+
+            if (!classes.Any())
+            {
+                // Return a default message if no classes are found
+                classes.Add(new SelectListItem { Value = "", Text = "-- No Classes Available --" });
+            }
+
+            return Json(classes);
+        }
+
+        public IActionResult Login()
         {
             return View();
         }
-		public IActionResult Login()
-		{
-			return View();
-		}
 
-      
         [HttpPost]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
@@ -58,78 +125,83 @@ namespace StudentManagement.Controllers
                 }
                 else
                 {
-                    ModelState.AddModelError("","Email or Password incorrect");
+                    ModelState.AddModelError("", "Email or Password incorrect");
                     return View(model);
                 }
-               
             }
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Register(RegistrationViewModel model)
         {
-
             if (model == null)
             {
                 return BadRequest("Model is null");
             }
 
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var user = new RegistrationModel
+                await PopulateDropdowns(model, model.GradeId);
+                return View("Registration", model);
+            }
+
+            var user = new RegistrationModel
+            {
+                UserName = model.Email,
+                Email = model.Email,
+                FullName = model.FullName,
+                Address = model.Address,
+                GardianName = model.GardianName,
+                gender = model.gender,
+                DateOfBirth = model.DateOfBirth,
+                Age = model.Age,
+                PhoneNumber = model.PhoneNumber
+            };
+
+            var result = await _userManager.CreateAsync(user, model.Password);
+
+            if (result.Succeeded)
+            {
+                _logger.LogInformation("User created a new account with password.");
+
+                if (await _roleManager.RoleExistsAsync(model.Role))
                 {
-                    UserName = model.Email,
-                    Email = model.Email,
-                    FullName = model.FullName,
-                    Address = model.Address,
-                    GardianName = model.GardianName,
-                    gender = model.gender,
-                    DateOfBirth = model.DateOfBirth,
-                    Age = model.Age,
-                    PhoneNumber= model.PhoneNumber
-                  
-                };
-
-                var result = await _userManager.CreateAsync(user, model.Password);
-
-                if (result.Succeeded)
-                {
-                    _logger.LogInformation("User created a new account with password.");
-
                     await _userManager.AddToRoleAsync(user, model.Role);
-
-                    var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
-                    TempData["SuccessMessage"] = "Registration successful!";
-                    return RedirectToAction("Registration");
-              
-
                 }
                 else
                 {
-                    await _signInManager.SignInAsync(user, isPersistent: false);
-                    
-                    TempData["ErrorMessage"] = "Registration Not Success!";
-                    return View(model);
-
+                    ModelState.AddModelError("", "Selected role does not exist.");
+                    await PopulateDropdowns(model, model.GradeId);
+                    return View("Registration", model);
                 }
 
-                foreach (var error in result.Errors)
+                var classRegistration = new ClassRegistrationModel
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
-                }
+                    UserID = user.Id,
+                    GradeId = model.GradeId,
+                    ClassId = model.ClassId
+                };
+                _context.Add(classRegistration);
+                await _context.SaveChangesAsync();
+
+                TempData["SuccessMessage"] = "Registration successful!";
+                return RedirectToAction("Login", "Account");
             }
 
-            return RedirectToAction("Registration");
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+
+            await PopulateDropdowns(model, model.GradeId);
+            return View("Registration", model);
         }
 
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
-            return RedirectToAction("Login","Account");     
+            return RedirectToAction("Login", "Account");
         }
 
         public IActionResult ForgotPassword()
@@ -147,7 +219,6 @@ namespace StudentManagement.Controllers
                 return RedirectToAction("ForgotPassword", "Account");
             }
 
-      
             var model = new ResetPasswordViewModel
             {
                 Email = email,
@@ -156,7 +227,6 @@ namespace StudentManagement.Controllers
 
             return View(model);
         }
-
 
         [HttpPost]
         [AllowAnonymous]
@@ -168,14 +238,9 @@ namespace StudentManagement.Controllers
                 var user = _userManager.FindByEmailAsync(model.Email).Result;
                 if (user != null)
                 {
-                   
                     var token = _userManager.GeneratePasswordResetTokenAsync(user).Result;
-
-                  
                     return RedirectToAction("ResetPassword", new { token, email = model.Email });
-
                 }
-
 
                 ModelState.AddModelError(string.Empty, "User not found.");
                 TempData["ErrorMessage"] = "User not found.";
@@ -185,46 +250,37 @@ namespace StudentManagement.Controllers
             return View(model);
         }
 
-		[HttpPost]
-		[AllowAnonymous]
-		[ValidateAntiForgeryToken]
-		public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
-		{
-			if (ModelState.IsValid)
-			{
-			
-				var user = await _userManager.FindByEmailAsync(model.Email);
-				if (user == null)
-				{
-				
-					ModelState.AddModelError(string.Empty, "No user found with this email address.");
-					return View(model);
-				}
+        [HttpPost]
+        [AllowAnonymous]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var user = await _userManager.FindByEmailAsync(model.Email);
+                if (user == null)
+                {
+                    ModelState.AddModelError(string.Empty, "No user found with this email address.");
+                    return View(model);
+                }
 
-		
-				var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
+                var result = await _userManager.ResetPasswordAsync(user, model.Token, model.Password);
 
+                if (result.Succeeded)
+                {
+                    TempData["SuccessMessage"] = "Password reset successfully!";
+                    return RedirectToAction("Login", "Account");
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError(string.Empty, error.Description);
+                    }
+                }
+            }
 
-				if (result.Succeeded)
-				{
-					
-					TempData["SuccessMessage"] = "Password reset successfully!";
-					return RedirectToAction("Login", "Account");
-				}
-				else
-				{
-			
-					foreach (var error in result.Errors)
-					{
-						ModelState.AddModelError(string.Empty, error.Description);
-					}
-				}
-			}
-
-		
-			return View(model);
-		}
-
-
-	}
+            return View(model);
+        }
+    }
 }

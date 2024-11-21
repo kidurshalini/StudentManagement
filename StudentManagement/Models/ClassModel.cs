@@ -12,7 +12,6 @@ namespace StudentManagement.Models
      
         public GradeModel Grades { get; set; }
 
-  
-
+     
     }
 }

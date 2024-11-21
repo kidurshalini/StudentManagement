@@ -10,7 +10,7 @@
     max-width: 400px;
     text-align: center;
     transition: transform 0.2s, box-shadow 0.2s;
-    height: 100%;
+    height:100%;
 }
 
 
@@ -77,16 +77,15 @@
 }
 
 .bodystyle {
-    background-color: #126180;
+    background-color: #4A90E2;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
-    margin: 0;
 }
 
 * {
-    font-family: Roboto;
+    font-family: 'Times New Roman';
 }
 
 .small-btn {

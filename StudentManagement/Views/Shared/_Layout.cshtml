@@ -15,8 +15,8 @@
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3 navbar-custom">
             <div class="container-fluid">
                 <div style="text-align: center;">
-                    <img src="~/Image/logo2.png" width="50px" height="50px" alt="Logo" />
-                    <p style="margin: 0; font-weight:bold; font-style:10px; ">Student Management System</p>
+                    <img src="~/Image/icon4.png" width="100px" height="100px" alt="Logo" />
+                    <p style="margin: 0; font-weight:bold; font-style:10px; color:white; ">School Management System</p>
                 </div>
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
@@ -26,34 +26,93 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-center">
                     <ul class="navbar-nav flex-grow-1 justify-content-center">
                         <li class="nav-item">
-                            <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-white nav-link-custom" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
 
-                        <li class="nav-item">
-                            <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
+                       
 
                         @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
                         {
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    User Details
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item " asp-area="" asp-controller="Account" asp-action="Registration">
+                                            <i class="bi bi-person-fill"></i> User Registration
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Subject">
+                                            <i class="bi bi-book"></i> Subjects
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Acedamic Details
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Subject">
+                                            <i class="bi bi-book-half"></i> Subjects
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Class">
+                                            <i class="bi bi-house-fill"></i> Class
+                                        </a>
+                                    </li>
+                                  
+                                </ul>
+                            </li>
                             
-                            <li class="nav-item">
-                                <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Account" asp-action="Registration">Registration</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Subject" asp-action="Subject">Subject</a>
-                            </li>
                         }
                         else if (User.IsInRole(StudentManagement.Common.CustomRole.Teacher))
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Account" asp-action="Registration">Student Registration</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    User Details
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item " asp-area="" asp-controller="Account" asp-action="Registration">
+                                            <i class="bi bi-person-fill"></i> User Registration
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Subject">
+                                            <i class="bi bi-book"></i> Subjects
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Acedamic Details
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Subject">
+                                            <i class="bi bi-book-half"></i> Subjects
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Class">
+                                            <i class="bi bi-house-fill"></i> Class
+                                        </a>
+                                    </li>
+
+                                </ul>
                             </li>
                         }
                         else if (User.IsInRole(StudentManagement.Common.CustomRole.Student))
 
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark nav-link-custom" asp-area="" asp-controller="Student" asp-action="Details">View Details</a>
+                                <a class="nav-link text-white nav-link-custom" asp-area="" asp-controller="Student" asp-action="Details">View Details</a>
                             </li>
                         }
                     </ul>

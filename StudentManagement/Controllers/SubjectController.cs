@@ -76,5 +76,67 @@ namespace StudentManagement.Controllers
 
             return View(model);
         }
-    }
+
+        public IActionResult Class()
+        {
+
+			var gradeItems = _context.Grades
+				.Select(g => new SelectListItem
+				{
+					Value = g.ID.ToString(),
+					Text = $"Grade {g.Grade}" 
+				})
+				.ToList();
+
+			var viewModel = new ClassViewModel
+			{
+				Grades = gradeItems
+			};
+
+			return View(viewModel);
+		}
+
+		[HttpPost]
+		public IActionResult Class(ClassViewModel model)
+		{
+			if (ModelState.IsValid)
+			{
+				try
+				{
+					var Class = new ClassModel
+					{
+						ID = Guid.NewGuid(),
+						Class = model.Class,
+						GradeId = model.GradeId // Assign the selected grade
+					};
+
+					_context.Class.Add(Class);
+					_context.SaveChanges();
+
+					TempData["SuccessMessage"] = "Class added successfully!";
+					return RedirectToAction("Class");
+				}
+				catch (Exception ex)
+				{
+					Console.WriteLine($"Error: {ex.Message}");
+					TempData["ErrorMessage"] = "An error occurred while saving the subject.";
+				}
+			}
+			else
+			{
+				TempData["ErrorMessage"] = "Please fill all required fields correctly.";
+			}
+
+			// Repopulate the dropdown in case of validation errors
+			model.Grades = _context.Grades
+				.Select(g => new SelectListItem
+				{
+					Value = g.ID.ToString(),
+					Text = $"Grade {g.Grade}"
+				})
+				.ToList();
+
+			return View(model);
+		}
+	}
 }

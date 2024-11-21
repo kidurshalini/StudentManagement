@@ -10,5 +10,6 @@ namespace StudentManagement.Models
 
         public ICollection<ClassModel> Class { get; set; }
         public ICollection<SubjectModel> Subject { get; set; }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace StudentManagement.ViewModel
@@ -57,5 +58,16 @@ namespace StudentManagement.ViewModel
         }
 
         public string GardianName { get; set; }
+
+		[Required]
+		[Display(Name = "Grade")]
+		public Guid GradeId { get; set; }  
+
+		[Required]
+		[Display(Name = "Class")]
+		public Guid ClassId { get; set; }
+
+        public IEnumerable<SelectListItem> Grades { get; set; }
+        public IEnumerable<SelectListItem> Class { get; set; }
     }
 }

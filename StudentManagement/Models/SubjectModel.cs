@@ -10,6 +10,6 @@
 
         public GradeModel Grades { get; set; }
 
-
+      
     }
 }

@@ -8,21 +8,21 @@
 }
 <body class="bodystyle"> 
     <div class="login-container">
-        <img src="~/Image/logo2.png" width="150px" height="150px" alt="Logo" />
-        <h2 class="text-center  fw-bold">Login</h2>
+        <img src="~/Image/icon3.png" width="250px" height="250px" alt="Logo" class="mb-0 mt-0" />
+        <h2 class="text-center fw-bold" style="margin-top:0px;">Login</h2>
         <form method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="mb-3">
+            <div class="mb-2">
                 <label asp-for="Email" class="form-label d-flex align-items-center">
-                    <i class="bi bi-envelope-fill me-2"></i>
+                    <i class="bi bi-envelope-fill me-1"></i>
                     Email
                 </label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
-            <div class="mb-3">
+            <div class="mb-2">
                 <label asp-for="Password" class="form-label d-flex align-items-center">
                     <i class="bi bi-lock-fill me-2"></i>
                     Password
@@ -31,9 +31,9 @@
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
-            <a asp-area="" asp-controller="Account" asp-action="ForgotPassword" style="margin-left:180px">Forgot your password?</a>
+            <a asp-area="" asp-controller="Account" asp-action="ForgotPassword" style="margin-left:180px; text-decoration: none;">Forgot your password?</a>
 
-            <div class="form-check mb-3">
+            <div class="form-check mb-2">
                 <label class="form-check-label d-flex align-items-center">
                     <input asp-for="RememberMe" class="form-check-input me-2" />
                     @Html.DisplayNameFor(a => a.RememberMe)
@@ -42,7 +42,7 @@
 
           
             <div>
-                <input type="submit" value="Login" class="btn btn-primary" />
+                <input type="submit" value="Login" class="btn btn-success" />
             </div>
         </form>
     </div>

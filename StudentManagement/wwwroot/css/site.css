@@ -87,11 +87,12 @@ button.accept-policy {
 }
 
 .navbar-nav .nav-item .nav-link {
-    color: #0077cc; /* Default link color */
+    color: #FFFFFF; 
     font-size: 20px; /* Adjusted font size */
     font-weight: 500;
-    margin-right: 15px; /* Space between items */
+    margin-right: 25px; /* Space between items */
     transition: color 0.3s ease, transform 0.3s ease;
+    align-content: center;
 }
 
     .navbar-nav .nav-item .nav-link:hover {
@@ -135,8 +136,7 @@ button.accept-policy {
 }
 
 .navbar-custom {
-    background-color: #b0c4de; /* Light teal background */
-}
+    background-color: #2C73B1;
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
     box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
@@ -149,15 +149,13 @@ html {
 
 body {
     margin-bottom: 60px;
+
 }
 
 label {
     font-weight: 550;
 }
 
-* {
-    font-family: Roboto;
-}
 
 .alert-container {
     display: flex;
@@ -168,3 +166,29 @@ label {
     width: 50%; /* Adjust the width as needed */
     text-align: center;
 }
+
+
+/* Transparent Dropdown Styles */
+.navbar .dropdown-menu {
+    background-color: #e0f7fa;
+    font-size: 20px;
+    z-index: 1050; /* Bootstrap default */
+    position: absolute;
+}
+
+    .navbar .dropdown-menu .nav-link {
+        color: #e0f7fa;
+        padding: 10px 20px;
+        transition: all 0.3s ease;
+        font-size: 16px;
+    }
+
+
+    /* Remove blue focus color */
+    .navbar .dropdown-menu .dropdown-item:focus,
+    .navbar .dropdown-menu .dropdown-item:active {
+        background-color: transparent; /* Remove the blue background */
+        color: inherit; /* Keep text color unchanged */
+        outline: none; /* Remove the outline */
+        box-shadow: none; /* Remove focus shadow */
+    }

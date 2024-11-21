@@ -1,8 +1,8 @@
-﻿@model StudentManagement.ViewModel.SubjectViewModel
+﻿@model StudentManagement.ViewModel.ClassViewModel
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 
 @{
-	ViewData["Title"] = "Registration";
+	ViewData["Title"] = "Class Details";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <body class="vh-500">
@@ -37,10 +37,9 @@
 				<partial name="_ValidationScriptsPartial" />
 			}
 
-			<form asp-controller="Subject" asp-action="Subject" method="post" class="border border-dark rounded p-4">
-				
+			<form asp-controller="Subject" asp-action="Class" method="post" class="border border-dark rounded p-4">
 
-				<h2 class="text-center mb-4  fw-bold">Subject Details</h2>
+				<h2 class="text-center mb-4  fw-bold">Class Details</h2>
 				<div class="form-group mb-3 row">
 					<label class="col-sm-3 col-form-label">Grade</label>
 					<div class="col-sm-9">
@@ -52,15 +51,15 @@
 					</div>
 
 					<div class="mb-3 row">
-						<label asp-for="Subject" class="col-sm-3 col-form-label">Subject</label>
+						<label asp-for="Class" class="col-sm-3 col-form-label">Class</label>
 						<div class="col-sm-9">
-							<input asp-for="Subject" class="form-control" />
-							<span asp-validation-for="Subject" class="text-danger"></span>
+							<input asp-for="Class" class="form-control" />
+							<span asp-validation-for="Class" class="text-danger"></span>
 						</div>
 					</div>
 
 					<div class="d-flex justify-content-center">
-						<input type="submit" value="Add Subject" class="btn btn-success me-2" />
+						<input type="submit" value="Add Class" class="btn btn-success me-2" />
 						<input type="reset" value="Clear" class="btn btn-secondary" />
 					</div>
 

@@ -8,7 +8,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<body class="vh-100">
+<body class="vh-250">
 
     @{
         var successMessage = TempData["SuccessMessage"] as string;
@@ -34,14 +34,14 @@
     </div>
 
     <div class="d-flex justify-content-center align-items-center">
-        <div class="login-container">
+        <div class="container">
 
             <form asp-controller="Account" asp-action="Register" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
                 @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
                 {
-                    <h2 class="text-center mb-4  fw-bold">Student And Teacher Registration Form</h2>
+                    <h2 class="text-center mb-4 fw-bold">Student And Teacher Registration Form</h2>
                     <div class="mb-3 row">
                         <label asp-for="Role" class="col-sm-3 col-form-label">Role</label>
                         <div class="col-sm-9">
@@ -58,6 +58,7 @@
                     <input type="hidden" asp-for="Role" value="Student" />
                 }
 
+ 
                 <div class="mb-3 row">
                     <label asp-for="FullName" class="col-sm-3 col-form-label">Full Name</label>
                     <div class="col-sm-9">
@@ -66,14 +67,7 @@
                     </div>
                 </div>
 
-                <div class="mb-3 row">
-                    <label asp-for="GardianName" class="col-sm-3 col-form-label">Guardian Name</label>
-                    <div class="col-sm-9">
-                        <input asp-for="GardianName" class="form-control" />
-                        <span asp-validation-for="GardianName" class="text-danger"></span>
-                    </div>
-                </div>
-
+               
                 <div class="mb-3 row">
                     <label asp-for="Address" class="col-sm-3 col-form-label">Address</label>
                     <div class="col-sm-9">
@@ -123,7 +117,44 @@
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                 </div>
+          
 
+                <div id="studentFields" style="display: none;">
+                    <div class="mb-3 row">
+                        <label asp-for="GardianName" class="col-sm-3 col-form-label">Guardian Name</label>
+                        <div class="col-sm-9">
+                            <input asp-for="GardianName" class="form-control" />
+                            <span asp-validation-for="GardianName" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3 row">
+                        <label class="col-sm-3 col-form-label" for="Grade">Grade</label>
+                        <div class="col-sm-9">
+                            <select id="Grade" name="GradeId" class="form-control">
+                                <option value="">-- Select Grade --</option>
+                                @foreach (var grade in Model.Grades)
+                                {
+                                    <option value="@grade.Value">@grade.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="GradeId" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    <div class="form-group mb-3 row">
+                        <label class="col-sm-3 col-form-label" for="Class">Class</label>
+                        <div class="col-sm-9">
+                            <select id="Class" name="ClassId" class="form-control">
+                                <option value="">-- Select Class --</option>
+                            </select>
+                            <span asp-validation-for="ClassId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+               
+  
                 <div class="d-flex justify-content-center">
                     <input id="registerSubmit" type="submit" value="Create Account" class="btn btn-success me-2" />
                     <input type="reset" value="Clear" class="btn btn-secondary" />
@@ -134,3 +165,52 @@
     </div>
 
 </body>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $('#Grade').change(function () {
+            var gradeId = $(this).val(); // Get selected grade ID
+            var classDropdown = $('#Class');
+
+            // Clear and reset the class dropdown
+            classDropdown.empty();
+            classDropdown.append('<option value="">-- Select Class --</option>');
+
+            if (gradeId) {
+                // Fetch the classes for the selected grade
+                $.get('/Account/UpdateClasses', { gradeId: gradeId }, function (data) {
+                    $.each(data, function (index, item) {
+                        classDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                    });
+                }).fail(function () {
+                    alert('Error fetching classes. Please try again.');
+                });
+            }
+        });
+    });
+
+   
+        $(document).ready(function () {
+            function toggleStudentFields() {
+                var selectedRole = $('#Role').val();
+                if (selectedRole === 'Student') {
+                    $('#studentFields').show(); // Show the student fields
+                } else {
+                    $('#studentFields').hide(); // Hide the student fields
+                }
+            }
+
+        // On page load, check the selected role
+        toggleStudentFields();
+
+        // On role change, toggle the student fields
+        $('#Role').change(function () {
+            toggleStudentFields();
+        });
+    });
+</script>
+
+
+
+

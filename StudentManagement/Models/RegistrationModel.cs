@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using System.Diagnostics;
+using System.Security.Claims;
 
 namespace StudentManagement.Models
 {
@@ -17,6 +19,7 @@ namespace StudentManagement.Models
     
         public int Age { get; set; }
 
-      
-    }
+	
+	
+	}
 }
