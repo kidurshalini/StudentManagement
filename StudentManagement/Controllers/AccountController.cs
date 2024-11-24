@@ -132,6 +132,7 @@ namespace StudentManagement.Controllers
             return View(model);
         }
 
+
         [HttpPost]
         public async Task<IActionResult> Register(RegistrationViewModel model)
         {
@@ -140,24 +141,22 @@ namespace StudentManagement.Controllers
                 return BadRequest("Model is null");
             }
 
-            if (!ModelState.IsValid)
-            {
-                await PopulateDropdowns(model, model.GradeId);
-                return View("Registration", model);
-            }
-
             var user = new RegistrationModel
             {
                 UserName = model.Email,
                 Email = model.Email,
                 FullName = model.FullName,
                 Address = model.Address,
-                GardianName = model.GardianName,
                 gender = model.gender,
                 DateOfBirth = model.DateOfBirth,
                 Age = model.Age,
                 PhoneNumber = model.PhoneNumber
             };
+
+            if (model.Role == "Student")
+            {
+                user.GardianName = model.GardianName;
+            }
 
             var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -165,28 +164,28 @@ namespace StudentManagement.Controllers
             {
                 _logger.LogInformation("User created a new account with password.");
 
-                if (await _roleManager.RoleExistsAsync(model.Role))
+                if (!string.IsNullOrWhiteSpace(model.Role) && await _roleManager.RoleExistsAsync(model.Role))
                 {
-                    await _userManager.AddToRoleAsync(user, model.Role);
+                    var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
+                    if (!roleResult.Succeeded)
+                    {
+                        foreach (var error in roleResult.Errors)
+                        {
+                            ModelState.AddModelError(string.Empty, error.Description);
+                        }
+
+                        await _userManager.DeleteAsync(user);
+                        return View("Registration", model);
+                    }
                 }
                 else
                 {
                     ModelState.AddModelError("", "Selected role does not exist.");
-                    await PopulateDropdowns(model, model.GradeId);
                     return View("Registration", model);
                 }
 
-                var classRegistration = new ClassRegistrationModel
-                {
-                    UserID = user.Id,
-                    GradeId = model.GradeId,
-                    ClassId = model.ClassId
-                };
-                _context.Add(classRegistration);
-                await _context.SaveChangesAsync();
-
                 TempData["SuccessMessage"] = "Registration successful!";
-                return RedirectToAction("Login", "Account");
+                return RedirectToAction("Registration", "Account");
             }
 
             foreach (var error in result.Errors)
@@ -194,20 +193,10 @@ namespace StudentManagement.Controllers
                 ModelState.AddModelError(string.Empty, error.Description);
             }
 
-            await PopulateDropdowns(model, model.GradeId);
+            TempData["ErrorMessage"] = "Registration failed.";
             return View("Registration", model);
         }
 
-        public async Task<IActionResult> Logout()
-        {
-            await _signInManager.SignOutAsync();
-            return RedirectToAction("Login", "Account");
-        }
-
-        public IActionResult ForgotPassword()
-        {
-            return View();
-        }
 
         [HttpGet]
         [AllowAnonymous]

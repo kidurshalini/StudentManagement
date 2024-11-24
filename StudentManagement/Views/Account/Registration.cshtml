@@ -1,4 +1,5 @@
-﻿@using StudentManagement.ViewModel
+﻿
+@using StudentManagement.ViewModel
 
 @model RegistrationViewModel;
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
@@ -15,11 +16,12 @@
         var errorMessage = TempData["ErrorMessage"] as string;
     }
 
-    <div class="alert-container">
+    <div class="alert-container align-content-center">
         @if (!string.IsNullOrEmpty(successMessage))
         {
             <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
                 <strong>Success!</strong> @successMessage
+
                 <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         }
@@ -45,7 +47,7 @@
                     <div class="mb-3 row">
                         <label asp-for="Role" class="col-sm-3 col-form-label">Role</label>
                         <div class="col-sm-9">
-                            <select asp-for="Role" class="form-select">
+                            <select asp-for="Role" class="form-select" id="Role">
                                 <option value="Teacher">Teacher</option>
                                 <option value="Student">Student</option>
                             </select>
@@ -58,7 +60,7 @@
                     <input type="hidden" asp-for="Role" value="Student" />
                 }
 
- 
+
                 <div class="mb-3 row">
                     <label asp-for="FullName" class="col-sm-3 col-form-label">Full Name</label>
                     <div class="col-sm-9">
@@ -67,7 +69,6 @@
                     </div>
                 </div>
 
-               
                 <div class="mb-3 row">
                     <label asp-for="Address" class="col-sm-3 col-form-label">Address</label>
                     <div class="col-sm-9">
@@ -117,7 +118,6 @@
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                 </div>
-          
 
                 <div id="studentFields" style="display: none;">
                     <div class="mb-3 row">
@@ -127,34 +127,8 @@
                             <span asp-validation-for="GardianName" class="text-danger"></span>
                         </div>
                     </div>
-
-                    <div class="form-group mb-3 row">
-                        <label class="col-sm-3 col-form-label" for="Grade">Grade</label>
-                        <div class="col-sm-9">
-                            <select id="Grade" name="GradeId" class="form-control">
-                                <option value="">-- Select Grade --</option>
-                                @foreach (var grade in Model.Grades)
-                                {
-                                    <option value="@grade.Value">@grade.Text</option>
-                                }
-                            </select>
-                            <span asp-validation-for="GradeId" class="text-danger"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-group mb-3 row">
-                        <label class="col-sm-3 col-form-label" for="Class">Class</label>
-                        <div class="col-sm-9">
-                            <select id="Class" name="ClassId" class="form-control">
-                                <option value="">-- Select Class --</option>
-                            </select>
-                            <span asp-validation-for="ClassId" class="text-danger"></span>
-                        </div>
-                    </div>
                 </div>
 
-               
-  
                 <div class="d-flex justify-content-center">
                     <input id="registerSubmit" type="submit" value="Create Account" class="btn btn-success me-2" />
                     <input type="reset" value="Clear" class="btn btn-secondary" />
@@ -169,37 +143,14 @@
 
 <script>
     $(document).ready(function () {
-        $('#Grade').change(function () {
-            var gradeId = $(this).val(); // Get selected grade ID
-            var classDropdown = $('#Class');
-
-            // Clear and reset the class dropdown
-            classDropdown.empty();
-            classDropdown.append('<option value="">-- Select Class --</option>');
-
-            if (gradeId) {
-                // Fetch the classes for the selected grade
-                $.get('/Account/UpdateClasses', { gradeId: gradeId }, function (data) {
-                    $.each(data, function (index, item) {
-                        classDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
-                    });
-                }).fail(function () {
-                    alert('Error fetching classes. Please try again.');
-                });
+        function toggleStudentFields() {
+            var selectedRole = $('#Role').val();
+            if (selectedRole === 'Student') {
+                $('#studentFields').show(); // Show the student fields
+            } else {
+                $('#studentFields').hide(); // Hide the student fields
             }
-        });
-    });
-
-   
-        $(document).ready(function () {
-            function toggleStudentFields() {
-                var selectedRole = $('#Role').val();
-                if (selectedRole === 'Student') {
-                    $('#studentFields').show(); // Show the student fields
-                } else {
-                    $('#studentFields').hide(); // Hide the student fields
-                }
-            }
+        }
 
         // On page load, check the selected role
         toggleStudentFields();
@@ -209,8 +160,6 @@
             toggleStudentFields();
         });
     });
+
+ 
 </script>
-
-
-
-

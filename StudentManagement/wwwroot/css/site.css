@@ -192,3 +192,7 @@ label {
         outline: none; /* Remove the outline */
         box-shadow: none; /* Remove focus shadow */
     }
+
+.theadstyle {
+    font-size: 25px;
+}

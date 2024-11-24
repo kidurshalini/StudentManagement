@@ -1,8 +1,8 @@
-﻿@model StudentManagement.ViewModel.SubjectViewModel
+﻿ @model StudentManagement.ViewModel.SubjectViewModel
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 
 @{
-	ViewData["Title"] = "Registration";
+	ViewData["Title"] = "Class Details";
 	Layout = "~/Views/Shared/_Layout.cshtml";
 }
 <body class="vh-500">
@@ -38,7 +38,6 @@
 			}
 
 			<form asp-controller="Subject" asp-action="Subject" method="post" class="border border-dark rounded p-4">
-				
 
 				<h2 class="text-center mb-4  fw-bold">Subject Details</h2>
 				<div class="form-group mb-3 row">
@@ -68,3 +67,4 @@
 
 		</div>
 </body>
+

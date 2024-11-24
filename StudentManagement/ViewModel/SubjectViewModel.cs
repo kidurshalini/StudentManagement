@@ -7,7 +7,9 @@ namespace StudentManagement.ViewModel
 {
     public class SubjectViewModel
     {
-        [Required(ErrorMessage = "Grade is required.")]
+		public Guid Id { get; set; }
+
+		[Required(ErrorMessage = "Grade is required.")]
         [Display(Name = "Grade")]
         public Guid GradeId { get; set; }
 
@@ -15,6 +17,9 @@ namespace StudentManagement.ViewModel
         [Display(Name = "Subject Name")]
         public string Subject { get; set; } // Subject Name
 
-        public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
+       public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
+
+	 
+      
     }
 }

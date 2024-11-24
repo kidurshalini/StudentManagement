@@ -26,7 +26,7 @@ namespace StudentManagement.ViewModel
         public string FullName { get; set; }
 
         [Required]
-        [Display(Name = "Date of Birth")]
+        [Display(Name = "Gender")]
         public string gender { get; set; }
 
         [Display(Name = "PhoneNumber")]
@@ -59,11 +59,11 @@ namespace StudentManagement.ViewModel
 
         public string GardianName { get; set; }
 
-		[Required]
+		
 		[Display(Name = "Grade")]
 		public Guid GradeId { get; set; }  
 
-		[Required]
+		
 		[Display(Name = "Class")]
 		public Guid ClassId { get; set; }
 

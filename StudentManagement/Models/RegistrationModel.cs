@@ -10,16 +10,16 @@ namespace StudentManagement.Models
 
         public string Address { get; set; }
 
-        public string GardianName { get; set; }
+        public string? GardianName { get; set; }
 
         public string gender { get; set; }
 
         public DateTime DateOfBirth { get; set; }
 
-    
+
         public int Age { get; set; }
 
-	
-	
-	}
+
+
+    }
 }
