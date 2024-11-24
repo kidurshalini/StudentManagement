@@ -1,4 +1,5 @@
 ﻿
+
 @using StudentManagement.ViewModel
 
 @model RegistrationViewModel;
@@ -119,7 +120,16 @@
                     </div>
                 </div>
 
-                <div id="studentFields" style="display: none;">
+                @* <div id="studentFields" style="display: none;">
+                    <div class="mb-3 row">
+                        <label asp-for="GardianName" class="col-sm-3 col-form-label">Guardian Name</label>
+                        <div class="col-sm-9">
+                            <input asp-for="GardianName" class="form-control" />
+                            <span asp-validation-for="GardianName" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div> *@
+                <div id="guardianFields" style="display: none;">
                     <div class="mb-3 row">
                         <label asp-for="GardianName" class="col-sm-3 col-form-label">Guardian Name</label>
                         <div class="col-sm-9">
@@ -128,6 +138,39 @@
                         </div>
                     </div>
                 </div>
+
+                <div id="gradeFields" style="display: none;">
+                    <div class="mb-3 row">
+                        <label asp-for="GradeId" class="col-sm-3 col-form-label">Grade</label>
+                        <div class="col-sm-9">
+                            <select asp-for="GradeId" class="form-select" id="GradeId">
+                                <option value="">-- Select Grade --</option>
+                                @foreach (var grade in Model.Grades)
+                                {
+                                    <option value="@grade.Value">@grade.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="GradeId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="classFields" style="display: none;">
+                    <div class="mb-3 row">
+                        <label asp-for="ClassId" class="col-sm-3 col-form-label">Class</label>
+                        <div class="col-sm-9">
+                            <select asp-for="ClassId" class="form-select" id="ClassId">
+                                <option value="">-- Select Class --</option>
+                                @foreach (var classItem in Model.Classes)
+                                {
+                                    <option value="@classItem.Value">@classItem.Text</option>
+                                }
+                            </select>
+                            <span asp-validation-for="ClassId" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div class="d-flex justify-content-center">
                     <input id="registerSubmit" type="submit" value="Create Account" class="btn btn-success me-2" />
@@ -142,13 +185,20 @@
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+
+
     $(document).ready(function () {
+        // Function to toggle fields based on selected role
         function toggleStudentFields() {
             var selectedRole = $('#Role').val();
             if (selectedRole === 'Student') {
-                $('#studentFields').show(); // Show the student fields
+                $('#guardianFields').show(); // Show the guardian fields
+                $('#gradeFields').show();    // Show the grade fields
+                $('#classFields').show();    // Show the class fields
             } else {
-                $('#studentFields').hide(); // Hide the student fields
+                $('#guardianFields').hide(); // Hide the guardian fields
+                $('#gradeFields').hide();    // Hide the grade fields
+                $('#classFields').hide();    // Hide the class fields
             }
         }
 
@@ -159,7 +209,22 @@
         $('#Role').change(function () {
             toggleStudentFields();
         });
+
+        // AJAX call to fetch classes based on selected grade
+        $('#GradeId').change(function () {
+            var gradeId = $(this).val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateClasses", "Account")',
+                data: { gradeId: gradeId },
+                success: function (data) {
+                    $('#ClassId').empty(); // Empty current class options
+                    $.each(data, function (i, item) {
+                        $('#ClassId').append('<option value="' + item.value + '">' + item.text + '</option>');
+                    });
+                }
+            });
+        });
     });
 
- 
 </script>

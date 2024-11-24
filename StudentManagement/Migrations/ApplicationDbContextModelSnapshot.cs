@@ -177,7 +177,7 @@ namespace StudentManagement.Migrations
 
                     b.HasIndex("GradeId");
 
-                    b.ToTable("Class");
+                    b.ToTable("Class", (string)null);
                 });
 
             modelBuilder.Entity("StudentManagement.Models.ClassRegistrationModel", b =>
@@ -204,7 +204,7 @@ namespace StudentManagement.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("UserAcadamic");
+                    b.ToTable("UserAcadamic", (string)null);
                 });
 
             modelBuilder.Entity("StudentManagement.Models.GradeModel", b =>
@@ -218,7 +218,7 @@ namespace StudentManagement.Migrations
 
                     b.HasKey("ID");
 
-                    b.ToTable("Grades");
+                    b.ToTable("Grades", (string)null);
                 });
 
             modelBuilder.Entity("StudentManagement.Models.RegistrationModel", b =>
@@ -339,7 +339,7 @@ namespace StudentManagement.Migrations
 
                     b.HasIndex("GradeModelID");
 
-                    b.ToTable("Subject");
+                    b.ToTable("Subject", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

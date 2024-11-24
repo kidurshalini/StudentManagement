@@ -16,41 +16,44 @@ namespace StudentManagement.Models
         {
         }
 
+
         protected override void OnModelCreating(ModelBuilder builder)
         {
             base.OnModelCreating(builder);
 
             builder.Entity<ClassModel>()
-             .HasOne(c => c.Grades)     
-             .WithMany(g => g.Class)    
-             .HasForeignKey(c => c.GradeId); 
+                .HasOne(c => c.Grades)
+                .WithMany(g => g.Class)
+                .HasForeignKey(c => c.GradeId)
+                .OnDelete(DeleteBehavior.Restrict); // Prevent cascade delete from Grade to Class
 
             builder.Entity<SubjectModel>()
-			.HasOne(s => s.Grades)
-		    .WithMany()
-		    .HasForeignKey(s => s.GradeId)
-		    .OnDelete(DeleteBehavior.Cascade);
+                .HasOne(s => s.Grades)
+                .WithMany()
+                .HasForeignKey(s => s.GradeId)
+                .OnDelete(DeleteBehavior.Cascade); // Cascade delete on Grade -> Subject (if needed)
 
             builder.Entity<ClassRegistrationModel>()
-       .HasOne(cr => cr.Registration)
-       .WithMany() // RegistrationModel can have many ClassRegistrations
-       .HasForeignKey(cr => cr.UserID) // Matches RegistrationModel.Id type
-       .OnDelete(DeleteBehavior.Restrict);
+                .HasOne(cr => cr.Registration)
+                .WithMany() // RegistrationModel can have many ClassRegistrations
+                .HasForeignKey(cr => cr.UserID) // Matches RegistrationModel.Id type
+                .OnDelete(DeleteBehavior.Restrict); // Prevent delete cascading from Registration
 
             // Configure the one-to-many relationship with GradeModel
             builder.Entity<ClassRegistrationModel>()
                 .HasOne(cr => cr.Grades)
                 .WithMany() // GradeModel may have many ClassRegistrations
                 .HasForeignKey(cr => cr.GradeId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict); // Prevent delete cascading from Grade to ClassRegistration
 
             // Configure the one-to-many relationship with ClassModel
             builder.Entity<ClassRegistrationModel>()
                 .HasOne(cr => cr.Class)
                 .WithMany() // ClassModel may have many ClassRegistrations
                 .HasForeignKey(cr => cr.ClassId)
-                 .OnDelete(DeleteBehavior.Restrict);
+                .OnDelete(DeleteBehavior.Restrict); // Prevent delete cascading from Class to ClassRegistration
         }
+
 
         public DbSet<GradeModel> Grades { get; set; }
 

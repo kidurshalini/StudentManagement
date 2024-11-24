@@ -20,6 +20,5 @@ namespace StudentManagement.Models
         public int Age { get; set; }
 
 
-
     }
 }

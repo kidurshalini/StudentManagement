@@ -38,7 +38,6 @@ namespace StudentManagement.Controllers
         }
 
         private async Task PopulateDropdowns(RegistrationViewModel model, Guid? selectedGradeId = null)
-
         {
             model.Grades = await _context.Grades
                 .Select(g => new SelectListItem
@@ -50,7 +49,7 @@ namespace StudentManagement.Controllers
 
             if (selectedGradeId.HasValue)
             {
-                model.Class = await _context.Class
+                model.Classes = await _context.Class
                     .Where(c => c.GradeId == selectedGradeId.Value) // Filter classes by selected grade
                     .Select(c => new SelectListItem
                     {
@@ -61,12 +60,13 @@ namespace StudentManagement.Controllers
             }
             else
             {
-                model.Class = new List<SelectListItem>
-                {
-                    new SelectListItem { Value = "", Text = "-- Select Class --" }
-                };
+                model.Classes = new List<SelectListItem>
+        {
+            new SelectListItem { Value = "", Text = "-- Select Class --" }
+        };
             }
         }
+
 
         [HttpGet]
         public async Task<IActionResult> Registration()
@@ -141,6 +141,7 @@ namespace StudentManagement.Controllers
                 return BadRequest("Model is null");
             }
 
+            // Create the user object (RegistrationModel)
             var user = new RegistrationModel
             {
                 UserName = model.Email,
@@ -155,15 +156,29 @@ namespace StudentManagement.Controllers
 
             if (model.Role == "Student")
             {
-                user.GardianName = model.GardianName;
+                user.GardianName = model.GardianName;  // Only for students
+
+                // Create the ClassRegistrationModel (academic details)
+                var classRegistration = new ClassRegistrationModel
+                {
+                    UserID = user.Id,  // Associate the user with the registration
+                    GradeId = model.GradeId,  // Foreign key to Grade
+                    ClassId = model.ClassId,  // Foreign key to Class
+                                              // Users = new List<RegistrationModel> { user }, // REMOVE this part
+                };
+
+                // Add the class registration to the database
+                await _context.UserAcadamic.AddAsync(classRegistration);
             }
 
+            // Create the user in Identity
             var result = await _userManager.CreateAsync(user, model.Password);
 
             if (result.Succeeded)
             {
                 _logger.LogInformation("User created a new account with password.");
 
+                // Assign role to the user
                 if (!string.IsNullOrWhiteSpace(model.Role) && await _roleManager.RoleExistsAsync(model.Role))
                 {
                     var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
@@ -174,6 +189,7 @@ namespace StudentManagement.Controllers
                             ModelState.AddModelError(string.Empty, error.Description);
                         }
 
+                        // If role assignment fails, delete the user
                         await _userManager.DeleteAsync(user);
                         return View("Registration", model);
                     }
@@ -196,6 +212,8 @@ namespace StudentManagement.Controllers
             TempData["ErrorMessage"] = "Registration failed.";
             return View("Registration", model);
         }
+
+
 
 
         [HttpGet]

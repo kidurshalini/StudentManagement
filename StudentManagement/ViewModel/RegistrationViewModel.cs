@@ -59,15 +59,14 @@ namespace StudentManagement.ViewModel
 
         public string GardianName { get; set; }
 
-		
-		[Display(Name = "Grade")]
-		public Guid GradeId { get; set; }  
 
-		
-		[Display(Name = "Class")]
-		public Guid ClassId { get; set; }
+        [Display(Name = "Grade")]
+        public Guid GradeId { get; set; }
+
+        [Display(Name = "Class")]
+        public Guid ClassId { get; set; }
 
         public IEnumerable<SelectListItem> Grades { get; set; }
-        public IEnumerable<SelectListItem> Class { get; set; }
+        public IEnumerable<SelectListItem> Classes { get; set; }
     }
 }
