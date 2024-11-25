@@ -256,6 +256,11 @@ namespace StudentManagement.Controllers
 
             return View(model);
         }
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
 
         [HttpPost]
         [AllowAnonymous]
@@ -289,5 +294,14 @@ namespace StudentManagement.Controllers
 
             return View(model);
         }
+
+
+        public async Task<IActionResult> Logout()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Login", "Account");
+        }
+
+
     }
 }

@@ -1,0 +1,63 @@
+﻿@using StudentManagement.ViewModel
+@model SubjectViewModel
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+
+@{
+    ViewData["Title"] = "Add Subject";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="alert-container">
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+    {
+        <div class="alert alert-danger">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+</div>
+
+<div class="container mt-5">
+    <div class="card shadow">
+        <div class="card-header bg-Secondary text-dark">
+            <h2 class="text-center mb-0">List of Subjects</h2>
+        </div>
+        <div class="card-body">
+            <table class="table table-striped table-hover text-center table-bordered">
+                <thead class="table-primary">
+                    <tr style="font-size:20px">
+                        <th>Grade</th>
+                        <th>Subject</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var subject in Model.Subjects)
+                    {
+                        <tr style="font-size:18px">
+                            <td>@subject.Grades.Grade</td>
+                            <td>@subject.Subject</td>
+                            <td>
+                                <a asp-controller="Subject" asp-action="SubjectEdit" asp-route-id="@subject.ID" class="btn btn-sm btn-warning me-2">Edit</a>
+                                <a asp-controller="Subject" asp-action="Delete" asp-route-id="@subject.ID" class="btn btn-sm btn-danger">Delete</a>
+                            </td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

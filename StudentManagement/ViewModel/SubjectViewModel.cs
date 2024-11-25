@@ -7,7 +7,9 @@ namespace StudentManagement.ViewModel
 {
     public class SubjectViewModel
     {
-		public Guid Id { get; set; }
+        public List<SubjectModel> Subjects;
+
+        public Guid Id { get; set; }
 
 		[Required(ErrorMessage = "Grade is required.")]
         [Display(Name = "Grade")]
