@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Security.Claims;
 
 namespace StudentManagement.Models
 {
@@ -10,6 +11,6 @@ namespace StudentManagement.Models
 
         public ICollection<ClassModel> Class { get; set; }
         public ICollection<SubjectModel> Subject { get; set; }
-
+        
     }
 }

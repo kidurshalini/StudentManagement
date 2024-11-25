@@ -132,13 +132,21 @@ namespace StudentManagement.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> Register(RegistrationViewModel model)
         {
             if (model == null)
             {
+                // This ensures that if the model is null, we return an error.
                 return BadRequest("Model is null");
+            }
+
+            // Check if email already exists
+            var existingUser = await _userManager.FindByEmailAsync(model.Email);
+            if (existingUser != null)
+            {
+                ModelState.AddModelError("Email", "Email is already in use.");
+                return View("Registration", model);
             }
 
             // Create the user object (RegistrationModel)
@@ -154,26 +162,8 @@ namespace StudentManagement.Controllers
                 PhoneNumber = model.PhoneNumber
             };
 
-            if (model.Role == "Student")
-            {
-                user.GardianName = model.GardianName;  // Only for students
-
-                // Create the ClassRegistrationModel (academic details)
-                var classRegistration = new ClassRegistrationModel
-                {
-                    UserID = user.Id,  // Associate the user with the registration
-                    GradeId = model.GradeId,  // Foreign key to Grade
-                    ClassId = model.ClassId,  // Foreign key to Class
-                                              // Users = new List<RegistrationModel> { user }, // REMOVE this part
-                };
-
-                // Add the class registration to the database
-                await _context.UserAcadamic.AddAsync(classRegistration);
-            }
-
             // Create the user in Identity
             var result = await _userManager.CreateAsync(user, model.Password);
-
             if (result.Succeeded)
             {
                 _logger.LogInformation("User created a new account with password.");
@@ -184,12 +174,13 @@ namespace StudentManagement.Controllers
                     var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
                     if (!roleResult.Succeeded)
                     {
+                        // Handle any errors in adding to role
                         foreach (var error in roleResult.Errors)
                         {
                             ModelState.AddModelError(string.Empty, error.Description);
                         }
 
-                        // If role assignment fails, delete the user
+                        // If role assignment fails, delete the user and return the view
                         await _userManager.DeleteAsync(user);
                         return View("Registration", model);
                     }
@@ -200,10 +191,36 @@ namespace StudentManagement.Controllers
                     return View("Registration", model);
                 }
 
+                // After user creation, check for student role and create class registration
+                if (model.Role == "Student")
+                {
+                    user = await _userManager.FindByEmailAsync(user.Email); // Reload user to get the assigned Id
+
+                    if (user == null)
+                    {
+                        // If user is still null, return an error (edge case handling)
+                        ModelState.AddModelError("", "Error finding user after creation.");
+                        return View("Registration", model);
+                    }
+
+                    // Create the ClassRegistrationModel (academic details)
+                    var classRegistration = new ClassRegistrationModel
+                    {
+                        UserID = user.Id,  // Now user.Id is guaranteed to be assigned
+                        GradeId = model.GradeId,
+                        ClassId = model.ClassId,
+                    };
+
+                    // Add the class registration to the database
+                    await _context.UserAcadamic.AddAsync(classRegistration);
+                    await _context.SaveChangesAsync(); // Make sure to save the changes to the DB
+                }
+
                 TempData["SuccessMessage"] = "Registration successful!";
                 return RedirectToAction("Registration", "Account");
             }
 
+            // If the creation fails, show error messages
             foreach (var error in result.Errors)
             {
                 ModelState.AddModelError(string.Empty, error.Description);
@@ -212,7 +229,6 @@ namespace StudentManagement.Controllers
             TempData["ErrorMessage"] = "Registration failed.";
             return View("Registration", model);
         }
-
 
 
 

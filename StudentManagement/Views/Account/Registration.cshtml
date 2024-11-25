@@ -1,186 +1,147 @@
-﻿@using StudentManagement.ViewModel
+﻿@* @using StudentManagement.ViewModel
 
 @model RegistrationViewModel;
-<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+
 
 @{
     ViewData["Title"] = "Registration";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<body class="vh-250">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 
-    @{
-        var successMessage = TempData["SuccessMessage"] as string;
-        var errorMessage = TempData["ErrorMessage"] as string;
+<div class="container py-5">
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+    {
+        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+            <i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
     }
 
-    <div class="alert-container align-content-center">
-        @if (!string.IsNullOrEmpty(successMessage))
-        {
-            <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
-                <strong>Success!</strong> @successMessage
-
-                <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-
-        @if (!string.IsNullOrEmpty(errorMessage))
-        {
-            <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
-                <strong>Error!</strong> @errorMessage
-                <button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        }
-    </div>
-
-    <div class="d-flex justify-content-center align-items-center">
-        <div class="container">
-
+    <div class="card">
+        <div class="card-header text-dark card-custom" style="background-color:#91a3b0;">
+            <h4 class="mb-0">
+                @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
+                {
+                    <h2 class="text-center">Student And Teacher Registration Form</h2>
+                }
+                else
+                {
+                    <h2 class="text-center">Student Registration Form</h2>
+                }
+            </h4>
+        </div>
+        <div class="card-body">
             <form asp-controller="Account" asp-action="Register" method="post">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
                 @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
                 {
-                    <h2 class="text-center mb-4 fw-bold">Student And Teacher Registration Form</h2>
-                    <div class="mb-3 row">
-                        <label asp-for="Role" class="col-sm-3 col-form-label">Role</label>
-                        <div class="col-sm-9">
-                            <select asp-for="Role" class="form-select" id="Role">
-                                <option value="Teacher">Teacher</option>
-                                <option value="Student">Student</option>
-                            </select>
-                        </div>
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label fw-bold">Role</label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="Teacher">Teacher</option>
+                            <option value="Student">Student</option>
+                        </select>
                     </div>
                 }
                 else
                 {
-                    <h2 class="text-center mb-4 fw-bold">Student Registration Form</h2>
                     <input type="hidden" asp-for="Role" value="Student" />
                 }
 
-
-                <div class="mb-3 row">
-                    <label asp-for="FullName" class="col-sm-3 col-form-label">Full Name</label>
-                    <div class="col-sm-9">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FullName" class="form-label fw-bold">Full Name</label>
                         <input asp-for="FullName" class="form-control" />
                         <span asp-validation-for="FullName" class="text-danger"></span>
                     </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label asp-for="Address" class="col-sm-3 col-form-label">Address</label>
-                    <div class="col-sm-9">
-                        <textarea asp-for="Address" class="form-control"></textarea>
-                        <span asp-validation-for="Address" class="text-danger"></span>
-                    </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label asp-for="PhoneNumber" class="col-sm-3 col-form-label">Phone Number</label>
-                    <div class="col-sm-9">
+                    <div class="col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
                         <input asp-for="PhoneNumber" class="form-control" />
                         <span asp-validation-for="PhoneNumber" class="text-danger"></span>
                     </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label asp-for="gender" class="col-sm-3 col-form-label">Gender</label>
-                    <div class="col-sm-9">
+                    <div class="col-md-12">
+                        <label asp-for="Address" class="form-label fw-bold">Address</label>
+                        <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="gender" class="form-label fw-bold">Gender</label>
                         <select asp-for="gender" class="form-select">
                             <option value="Male">Male</option>
                             <option value="Female">Female</option>
                         </select>
                     </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label asp-for="DateOfBirth" class="col-sm-3 col-form-label">Date Of Birth</label>
-                    <div class="col-sm-9">
+                    <div class="col-md-6">
+                        <label asp-for="DateOfBirth" class="form-label fw-bold">Date of Birth</label>
                         <input asp-for="DateOfBirth" class="form-control" />
                         <span asp-validation-for="DateOfBirth" class="text-danger"></span>
                     </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label asp-for="Email" class="col-sm-3 col-form-label">Email</label>
-                    <div class="col-sm-9">
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label fw-bold">Email</label>
                         <input asp-for="Email" class="form-control" />
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
-                </div>
-
-                <div class="mb-3 row">
-                    <label asp-for="Password" class="col-sm-3 col-form-label">Password</label>
-                    <div class="col-sm-9">
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label fw-bold">Password</label>
                         <input asp-for="Password" type="password" class="form-control" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
                 </div>
 
-                @* <div id="studentFields" style="display: none;">
-                    <div class="mb-3 row">
-                        <label asp-for="GardianName" class="col-sm-3 col-form-label">Guardian Name</label>
-                        <div class="col-sm-9">
-                            <input asp-for="GardianName" class="form-control" />
-                            <span asp-validation-for="GardianName" class="text-danger"></span>
-                        </div>
-                    </div>
-                </div> *@
-
-                <div id="guardianFields" style="display: none;">
-                    <div class="mb-3 row">
-                        <label asp-for="GardianName" class="col-sm-3 col-form-label">Guardian Name</label>
-                        <div class="col-sm-9">
-                            <input asp-for="GardianName" class="form-control" />
-                            <span asp-validation-for="GardianName" class="text-danger"></span>
-                        </div>
+                <div id="guardianFields" class="row g-3" style="display: none;">
+                    <div class="col-md-12">
+                        <label asp-for="GardianName" class="form-label fw-bold">Guardian Name</label>
+                        <input asp-for="GardianName" class="form-control" />
+                        <span asp-validation-for="GardianName" class="text-danger"></span>
                     </div>
                 </div>
 
-                <div id="gradeFields" style="display: none;">
-                    <div class="mb-3 row">
-                        <label asp-for="GradeId" class="col-sm-3 col-form-label">Grade</label>
-                        <div class="col-sm-9">
-                            <select asp-for="GradeId" class="form-select" id="GradeId">
-                                <option value="">-- Select Grade --</option>
-                                @foreach (var grade in Model.Grades)
-                                {
-                                    <option value="@grade.Value">@grade.Text</option>
-                                }
-                            </select>
-                            <span asp-validation-for="GradeId" class="text-danger"></span>
-                        </div>
+                <div id="gradeFields" class="row g-3" style="display: none;">
+                    <div class="col-md-6">
+                        <label asp-for="GradeId" class="form-label fw-bold">Grade</label>
+                        <select asp-for="GradeId" class="form-select">
+                            <option value="">-- Select Grade --</option>
+                            @foreach (var grade in Model.Grades)
+                            {
+                                <option value="@grade.Value">@grade.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="GradeId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ClassId" class="form-label fw-bold">Class</label>
+                        <select asp-for="ClassId" class="form-select">
+                            <option value="">-- Select Class --</option>
+                            @foreach (var classItem in Model.Classes)
+                            {
+                                <option value="@classItem.Value">@classItem.Text</option>
+                            }
+                        </select>
+                        <span asp-validation-for="ClassId" class="text-danger"></span>
                     </div>
                 </div>
 
-                <div id="classFields" style="display: none;">
-                    <div class="mb-3 row">
-                        <label asp-for="ClassId" class="col-sm-3 col-form-label">Class</label>
-                        <div class="col-sm-9">
-                            <select asp-for="ClassId" class="form-select" id="ClassId">
-                                <option value="">-- Select Class --</option>
-                                @foreach (var classItem in Model.Classes)
-                                {
-                                    <option value="@classItem.Value">@classItem.Text</option>
-                                }
-                            </select>
-                            <span asp-validation-for="ClassId" class="text-danger"></span>
-                        </div>
-                    </div>
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success px-4 me-2">Create Account</button>
+                    <button type="reset" class="btn btn-secondary px-4">Clear</button>
                 </div>
-
-
-                <div class="d-flex justify-content-center">
-                    <input id="registerSubmit" type="submit" value="Create Account" class="btn btn-success me-2" />
-                    <input type="reset" value="Clear" class="btn btn-secondary" />
-                </div>
-
             </form>
         </div>
     </div>
+</div>
 
-</body>
+ 
+
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
@@ -226,4 +187,192 @@
         });
     });
 
+</script> *@
+
+@using StudentManagement.ViewModel
+@model RegistrationViewModel
+
+@{
+    ViewData["Title"] = "Registration";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+
+<div class="container py-5">
+    @if (!string.IsNullOrEmpty(TempData["SuccessMessage"] as string))
+    {
+        <div class="alert alert-success alert-dismissible fade show text-center" role="alert">
+            <i class="bi bi-check-circle"></i> @TempData["SuccessMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(TempData["ErrorMessage"] as string))
+    {
+        <div class="alert alert-danger alert-dismissible fade show text-center" role="alert">
+            <i class="bi bi-exclamation-circle"></i> @TempData["ErrorMessage"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+
+    <div class="card">
+        <div class="card-header text-dark card-custom" style="background-color:#e5e4e2 ;">
+            <h4 class="mb-0">
+                @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
+                {
+                    <h2 class="text-center">Student And Teacher Registration Form</h2>
+                }
+                else
+                {
+                    <h2 class="text-center">Student Registration Form</h2>
+                }
+            </h4>
+        </div>
+        <div class="card-body">
+            <form asp-controller="Account" asp-action="Register" method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
+
+                @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
+                {
+                    <div class="mb-3">
+                        <label asp-for="Role" class="form-label fw-bold">Role</label>
+                        <select asp-for="Role" class="form-select">
+                            <option value="Teacher">Teacher</option>
+                            <option value="Student">Student</option>
+                        </select>
+                    </div>
+                }
+                else
+                {
+                    <input type="hidden" asp-for="Role" value="Student" />
+                }
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label asp-for="FullName" class="form-label fw-bold">Full Name</label>
+                        <input asp-for="FullName" class="form-control" />
+                        <span asp-validation-for="FullName" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="PhoneNumber" class="form-label fw-bold">Phone Number</label>
+                        <input asp-for="PhoneNumber" class="form-control" />
+                        <span asp-validation-for="PhoneNumber" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-12">
+                        <label asp-for="Address" class="form-label fw-bold">Address</label>
+                        <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+                        <span asp-validation-for="Address" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="gender" class="form-label fw-bold">Gender</label>
+                        <select asp-for="gender" class="form-select">
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="DateOfBirth" class="form-label fw-bold">Date of Birth</label>
+                        <input asp-for="DateOfBirth" class="form-control" />
+                        <span asp-validation-for="DateOfBirth" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Email" class="form-label fw-bold">Email</label>
+                        <input asp-for="Email" class="form-control" />
+                        <span asp-validation-for="Email" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="Password" class="form-label fw-bold">Password</label>
+                        <input asp-for="Password" type="password" class="form-control" />
+                        <span asp-validation-for="Password" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div id="guardianFields" class="row g-3" style="display: none;">
+                    <div class="col-md-12">
+                        <label asp-for="GardianName" class="form-label fw-bold">Guardian Name</label>
+                        <input asp-for="GardianName" class="form-control" />
+                        <span asp-validation-for="GardianName" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div id="gradeFields" class="row g-3" style="display: none;">
+                    <div class="col-md-6">
+                        <label asp-for="GradeId" class="form-label fw-bold">Grade</label>
+                        <select asp-for="GradeId" class="form-select">
+                            <option value="">-- Select Grade --</option>
+                            @if (Model.Grades != null)
+                            {
+                                @foreach (var grade in Model.Grades)
+                                {
+                                    <option value="@grade.Value">@grade.Text</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="GradeId" class="text-danger"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="ClassId" class="form-label fw-bold">Class</label>
+                        <select asp-for="ClassId" class="form-select">
+                            <option value="">-- Select Class --</option>
+                            @if (Model.Classes != null)
+                            {
+                                @foreach (var classItem in Model.Classes)
+                                {
+                                    <option value="@classItem.Value">@classItem.Text</option>
+                                }
+                            }
+                        </select>
+                        <span asp-validation-for="ClassId" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="text-center mt-4">
+                    <button type="submit" class="btn btn-success px-4 me-2">Create Account</button>
+                    <button type="reset" class="btn btn-secondary px-4">Clear</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        // Function to toggle fields based on selected role
+        function toggleStudentFields() {
+            var selectedRole = $('#Role').val();
+            if (selectedRole === 'Student') {
+                $('#guardianFields').show(); // Show the guardian fields
+                $('#gradeFields').show();    // Show the grade fields
+            } else {
+                $('#guardianFields').hide(); // Hide the guardian fields
+                $('#gradeFields').hide();    // Hide the grade fields
+            }
+        }
+
+        // On page load, check the selected role
+        toggleStudentFields();
+
+        // On role change, toggle the student fields
+        $('#Role').change(function () {
+            toggleStudentFields();
+        });
+
+        // AJAX call to fetch classes based on selected grade
+        $('#GradeId').change(function () {
+            var gradeId = $(this).val();
+
+            $.ajax({
+                url: '@Url.Action("UpdateClasses", "Account")',
+                data: { gradeId: gradeId },
+                success: function (data) {
+                    $('#ClassId').empty(); // Empty current class options
+                    $.each(data, function (i, item) {
+                        $('#ClassId').append('<option value="' + item.value + '">' + item.text + '</option>');
+                    });
+                }
+            });
+        });
+    });
 </script>

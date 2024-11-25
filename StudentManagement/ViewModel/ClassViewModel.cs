@@ -7,14 +7,20 @@ namespace StudentManagement.ViewModel
 {
 	public class ClassViewModel
 	{
-		[Required(ErrorMessage = "Grade is required.")]
+        public Guid Id;
+
+        [Required(ErrorMessage = "Grade is required.")]
 		[Display(Name = "Grade")]
 		public Guid GradeId { get; set; }
 
 		[Required(ErrorMessage = "Subject name is required.")]
 		[Display(Name = "Subject Name")]
-		public string Class { get; set; } 
+		public string Class { get; set; }
 
-		public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
-	}
+     
+    
+        public  List<SelectListItem> Classes { get; set; }
+
+        public List<SelectListItem> Grades { get; set; }
+    }
 }

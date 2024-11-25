@@ -1,73 +1,75 @@
-﻿ @model StudentManagement.ViewModel.SubjectViewModel
+﻿@model StudentManagement.ViewModel.SubjectViewModel
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 
 @{
-	ViewData["Title"] = "Subject Edit Details";
-	Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewData["Title"] = "Subject Edit Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<body class="vh-500">
+<body>
 
-	@{
-		var successMessage = TempData["SuccessMessage"] as string;
-		var errorMessage = TempData["ErrorMessage"] as string;
-	}
+    @{
+        var successMessage = TempData["SuccessMessage"] as string;
+        var errorMessage = TempData["ErrorMessage"] as string;
+    }
 
-	<div class="alert-container">
-		@if (!string.IsNullOrEmpty(successMessage))
-		{
-			<div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
-				<strong>Success!</strong> @successMessage
-				<button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
-		}
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-6 col-lg-4">
+                <!-- Success and Error Messages -->
+                <div class="alert-container mb-3">
+                    @if (!string.IsNullOrEmpty(successMessage))
+                    {
+                        <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
+                            <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> @successMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
 
-		@if (!string.IsNullOrEmpty(errorMessage))
-		{
-			<div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
-				<strong>Error!</strong> @errorMessage
-				<button type="button" class="btn-close btn-sm" data-bs-dismiss="alert" aria-label="Close"></button>
-			</div>
-		}
-	</div>
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
+                            <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Error!</strong> @errorMessage
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    }
+                </div>
 
-	<div class="d-flex justify-content-center align-items-center">
-		<div class="login-container mt-3">
+                <!-- Form Card with New Design -->
+                <div class="card shadow-lg rounded-3 border-0">
+                    <div class="card-header bg-primary text-white text-center">
+                        <h4 class="mb-0">Update Subject Details</h4>
+                    </div>
+                    <div class="card-body p-5">
+                        <form asp-controller="Subject" asp-action="SubjectEdit" method="post">
+                            <input type="hidden" asp-for="Id" />
 
-			@section Scripts {
-				<partial name="_ValidationScriptsPartial" />
-			}
+                            <!-- Grade Dropdown -->
+                            <div class="form-group mb-4">
+                                <label asp-for="GradeId" class="form-label fw-semibold">Grade</label>
+                                <select asp-for="GradeId" class="form-select" asp-items="Model.Grades">
+                                    <option value="">-- Select Grade --</option>
+                                </select>
+                                <span asp-validation-for="GradeId" class="text-danger"></span>
+                            </div>
 
-			<form asp-controller="Subject" asp-action="SubjectEdit" method="post" class="border border-dark rounded p-4">
+                            <!-- Subject Input -->
+                            <div class="form-group mb-4">
+                                <label asp-for="Subject" class="form-label fw-semibold">Subject</label>
+                                <input asp-for="Subject" class="form-control" placeholder="Enter Subject Name" />
+                                <span asp-validation-for="Subject" class="text-danger"></span>
+                            </div>
 
-				<h2 class="text-center mb-4  fw-bold">Subject Update Form</h2>
-
-				<input type="hidden" asp-for="Id" />
-
-				<div class="form-group mb-3 row">
-					<label class="col-sm-3 col-form-label">Grade</label>
-					<div class="col-sm-9">
-						<select asp-for="GradeId" class="form-control" asp-items="Model.Grades">
-							<option value="">-- Select Grade --</option>
-						</select>
-						</<div></div>
-						<span asp-validation-for="GradeId" class="text-danger"></span>
-					</div>
-
-					<div class="mb-3 row">
-						<label asp-for="Subject" class="col-sm-3 col-form-label">Subject</label>
-						<div class="col-sm-9">
-							<input asp-for="Subject" class="form-control" />
-							<span asp-validation-for="Subject" class="text-danger"></span>
-						</div>
-					</div>
-
-					<div class="d-flex justify-content-center">
-						<input type="submit" value="Update Subject" class="btn btn-warning me-2" />
-						<input type="reset" value="Clear" class="btn btn-secondary" />
-					</div>
-
-			</form>
-
-		</div>
+                            <!-- Action Buttons -->
+                            <div class="d-flex justify-content-center">
+                                <button type="submit" class="btn btn-warning btn-lg me-2">
+                                   Update Subject
+                                </button>
+                               
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
-

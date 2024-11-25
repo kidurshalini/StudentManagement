@@ -196,3 +196,17 @@ label {
 .theadstyle {
     font-size: 25px;
 }
+
+.alert-container {
+    display: flex;
+    justify-content: center;
+}
+
+.custom-alert {
+    width: 50%; /* Adjust the width as needed */
+    text-align: center;
+}
+
+.card-custom {
+    background-color: #b0c4de;
+}

@@ -26,6 +26,11 @@
     }
 
 
+        .login-container img:hover {
+            transform: scale(1.05); /* Slightly enlarge image on hover */
+        }
+
+
 .mb-3 label {
     font-weight: bold;
     color: #333;
@@ -102,4 +107,8 @@
 .custom-alert {
     width: 50%; /* Adjust the width as needed */
     text-align: center;
+}
+
+.card-custom {
+    background-color: #b0c4de;
 }
