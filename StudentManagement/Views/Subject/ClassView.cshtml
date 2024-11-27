@@ -12,20 +12,37 @@
 <div class="container mt-5">
     <div class="card shadow">
         <div class="card-header bg-Secondary text-dark" style="background-color:#e5e4e2;">
-            <h2 class="text-center mb-0">List of Subjects</h2>
+            <h2 class="text-center mb-0">List of Classes</h2>
         </div>
         <div class="card-body">
             <table class="table table-striped table-hover text-center table-bordered">
                 <thead class="table-primary">
                     <tr style="font-size:20px">
-                        <th>Grade</th>
-                        <th>Class</th>
-                        <th></th>
+                         @if (User.IsInRole(StudentManagement.Common.CustomRole.Student ))
+                        {
+                            <th>Grade</th>
+                            <th>Class</th>
+                           
+                        }
+                        else
+                        {
+                            <th>Grade</th>
+                            <th>Class</th>
+                            <th></th>
+                        }
                     </tr>
                 <tbody>
                         @foreach (var item in Model)
                         {
                         <tr>
+                            @if (User.IsInRole(StudentManagement.Common.CustomRole.Student ))
+                          {  <td>
+                                    @Html.DisplayFor(modelItem => item.Grades.FirstOrDefault().Text) <!-- Display Grade -->
+                            </td>
+                            <td>
+                                    @Html.DisplayFor(modelItem => item.Class) <!-- Display Class -->
+                            </td>
+                          }  else{
                             <td>
                                     @Html.DisplayFor(modelItem => item.Grades.FirstOrDefault().Text) <!-- Display Grade -->
                             </td>
@@ -35,8 +52,11 @@
 
                             <td>
                                 <a asp-controller="Subject" asp-action="ClassEdit" asp-route-id="@item.Id" class="btn btn-sm btn-warning me-2">Edit</a>
+
                                 <a asp-controller="Subject" asp-action="ClassDelete" asp-route-id="@item.Id" class="btn btn-sm btn-danger">Delete</a>
                             </td>
+                            }
+                         
                         </tr>
                         }
                 </tbody>

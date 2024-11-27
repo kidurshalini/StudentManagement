@@ -4,7 +4,7 @@ namespace StudentManagement.Models
 {
     public class ClassModel
     {
-        public Guid ID { set; get; }
+        public Guid Id { set; get; }
 
         public string Class { get; set; }
 

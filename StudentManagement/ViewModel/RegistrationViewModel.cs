@@ -7,12 +7,16 @@ namespace StudentManagement.ViewModel
     public class RegistrationViewModel
     {
         [Required]
+        public Guid ID { get; set; }
+
+
+        [Required]
         [EmailAddress]
         [Display(Name = "Email")]
         public string Email { get; set; }
 
         
-        [Required]
+      
         [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
         [DataType(DataType.Password)]
         [Display(Name = "Password")]
@@ -66,7 +70,9 @@ namespace StudentManagement.ViewModel
         [Display(Name = "Class")]
         public Guid ClassId { get; set; }
 
-        public IEnumerable<SelectListItem> Grades { get; set; }
-        public IEnumerable<SelectListItem> Classes { get; set; }
+        public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Classes { get; set; } = new List<SelectListItem>();
+
+
     }
 }

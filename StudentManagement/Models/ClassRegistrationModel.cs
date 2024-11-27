@@ -6,6 +6,7 @@
 
         // Foreign Key to RegistrationModel (User)
         public string UserID { get; set; }
+   
         public RegistrationModel Registration { get; set; }
 
         // Foreign Key to Grade

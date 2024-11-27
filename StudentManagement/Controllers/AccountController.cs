@@ -12,6 +12,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace StudentManagement.Controllers
 {
@@ -53,7 +54,7 @@ namespace StudentManagement.Controllers
                     .Where(c => c.GradeId == selectedGradeId.Value) // Filter classes by selected grade
                     .Select(c => new SelectListItem
                     {
-                        Value = c.ID.ToString(),
+                        Value = c.Id.ToString(),
                         Text = $"Class {c.Class}"
                     })
                     .ToListAsync();
@@ -93,7 +94,7 @@ namespace StudentManagement.Controllers
                 .Where(c => c.GradeId == gradeId) // Filter by GradeId
                 .Select(c => new SelectListItem
                 {
-                    Value = c.ID.ToString(),
+                    Value = c.Id.ToString(),
                     Text = c.Class // Use the correct property name for class name
                 })
                 .ToListAsync();
@@ -159,7 +160,8 @@ namespace StudentManagement.Controllers
                 gender = model.gender,
                 DateOfBirth = model.DateOfBirth,
                 Age = model.Age,
-                PhoneNumber = model.PhoneNumber
+                PhoneNumber = model.PhoneNumber,
+                GardianName = model.GardianName
             };
 
             // Create the user in Identity
@@ -318,6 +320,474 @@ namespace StudentManagement.Controllers
             return RedirectToAction("Login", "Account");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> TeacherView()
+        {
+            var teacherRole = "Teacher";
+            var teachers = await _userManager.GetUsersInRoleAsync(teacherRole);
 
-    }
+            var teacherViewModels = teachers.Select(user => new RegistrationViewModel
+            {
+                ID = Guid.TryParse(user.Id, out var guidId) ? guidId : Guid.Empty,
+                Email = user.Email,
+                FullName = user.FullName,
+                gender = user.gender,
+                PhoneNumber = user.PhoneNumber,
+                Address = user.Address,
+                DateOfBirth = user.DateOfBirth
+
+
+            }).ToList();
+
+            return View(teacherViewModels);
+        }
+
+		//[HttpGet]
+		//public async Task<IActionResult> StudentView()
+		//{
+		//    var StudentRole = "Student";
+
+		//    // Get all students in the "Student" role
+		//    var students = await _userManager.GetUsersInRoleAsync(StudentRole);
+
+		//    // Fetch ClassRegistration details for these students
+		//    var studentIds = students.Select(s => s.Id).ToList();
+
+		//    var classRegistrations = await _context.UserAcadamic
+		//        .Where(cr => studentIds.Contains(cr.UserID)) // No need for Select() here
+		//        .Include(cr => cr.Grades)  // Include Grade details
+		//        .Include(cr => cr.Class)   // Include Class details
+		//        .ToListAsync();
+
+		//    // Map the data into ViewModels
+		//    var studentViewModels = students.Select(user =>
+		//    {
+		//        // Find the class registration details for the current user
+		//        var classRegistration = classRegistrations.FirstOrDefault(cr => cr.UserID == user.Id);
+
+		//        return new RegistrationViewModel
+		//        {
+		//            ID = Guid.TryParse(user.Id, out var studentId) ? studentId : Guid.Empty,
+		//            Email = user.Email,
+		//            FullName = user.FullName,
+		//            gender = user.gender,
+		//            PhoneNumber = user.PhoneNumber,
+		//            Address = user.Address,
+		//            DateOfBirth = user.DateOfBirth,
+		//            Grades = new List<SelectListItem>
+		//    {
+		//        new SelectListItem
+		//        {
+		//            Value = classRegistration?.Grades?.ID.ToString(),
+		//            Text = classRegistration?.Grades?.Grade.ToString() ?? "N/A"
+		//        }
+		//    },
+		//            Classes = new List<SelectListItem>
+		//    {
+		//        new SelectListItem
+		//        {
+		//            Value = classRegistration?.Class?.Id.ToString(),
+		//            Text = classRegistration?.Class?.Class ?? "N/A"
+		//        }
+		//    }
+		//        };
+		//    }).ToList();
+
+		//    return View(studentViewModels);
+		//}
+
+		[HttpGet]
+		public async Task<IActionResult> StudentView()
+		{
+			var studentRole = "Student";
+
+			// Get all students in the "Student" role
+			var students = await _userManager.GetUsersInRoleAsync(studentRole);
+
+			// Fetch ClassRegistration details for these students
+			var studentIds = students.Select(s => s.Id).ToList();
+			var classRegistrations = await _context.UserAcadamic
+				.Where(cr => studentIds.Contains(cr.UserID))
+				.Include(cr => cr.Grades)  // Include Grade details
+				.Include(cr => cr.Class)   // Include Class details
+				.ToListAsync();
+
+			// Map the data into ViewModels
+			var studentViewModels = students.Select(user =>
+			{
+				// Find the class registration details for the current user
+				var classRegistration = classRegistrations.FirstOrDefault(cr => cr.UserID == user.Id);
+
+				return new RegistrationViewModel
+				{
+					ID = Guid.TryParse(user.Id, out var studentId) ? studentId : Guid.Empty,
+
+					Email = user.Email,
+					FullName = user.FullName,
+					gender = user.gender,
+					PhoneNumber = user.PhoneNumber,
+					Address = user.Address,
+					DateOfBirth = user.DateOfBirth,
+                    GardianName = user.GardianName,
+					Grades = new List<SelectListItem>
+			{
+				new SelectListItem
+				{
+					Value = classRegistration?.Grades?.ID.ToString(),
+					Text = classRegistration?.Grades?.Grade.ToString() ?? "N/A"
+				}
+			},
+					Classes = new List<SelectListItem>
+			{
+				new SelectListItem
+				{
+					Value = classRegistration?.Class?.Id.ToString(),
+					Text = classRegistration?.Class?.Class ?? "N/A"
+				}
+			},
+					GradeId = classRegistration?.GradeId ?? Guid.Empty,  // Set GradeId
+					ClassId = classRegistration?.ClassId ?? Guid.Empty   // Set ClassId
+				};
+			}).ToList();
+
+			return View(studentViewModels);
+		}
+
+		[HttpGet]
+		public IActionResult TeacherEdit(string id)
+		{
+			var RegistrationViewModel = _context.Users
+				.Where(u => u.Id == id)
+				.Select(u => new RegistrationViewModel
+				{
+					
+					FullName = u.FullName,
+					Email = u.Email,
+			    Password = u.PasswordHash,
+					gender = u.gender,
+					PhoneNumber = u.PhoneNumber,
+					Address = u.Address,
+					DateOfBirth = u.DateOfBirth,
+					GardianName = u.GardianName,
+				
+					
+				})
+				.FirstOrDefault();
+
+			if (RegistrationViewModel == null)
+			{
+				TempData["ErrorMessage"] = "Teacher not found.";
+				return RedirectToAction("TeacherList"); // Redirect to the teacher list page if not found
+			}
+
+			return View(RegistrationViewModel);
+		}
+
+        [HttpPost]
+        public IActionResult TeacherEdit(RegistrationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Retrieve the existing teacher from the database
+                var existingTeacherRecord = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
+
+                if (existingTeacherRecord == null)
+                {
+                    TempData["ErrorMessage"] = "Teacher not found.";
+                    return RedirectToAction("TeacherList"); // Redirect to the teacher list page if not found
+                }
+
+                // Check if the email has changed and if it exists in the database
+                if (existingTeacherRecord.Email != model.Email)
+                {
+                    var emailExists = _context.Users.Any(u => u.Email == model.Email);
+                    if (emailExists)
+                    {
+                        ModelState.AddModelError("Email", "The email address is already taken.");
+                        return View(model); // Return to the view with the validation error
+                    }
+                }
+
+                if (model.Role == "Student" && !string.IsNullOrEmpty(model.GardianName))
+                {
+                    existingTeacherRecord.GardianName = model.GardianName;
+                }
+
+                // If a new password is provided, hash and update it
+                if (!string.IsNullOrEmpty(model.Password))
+                {
+                    var passwordHasher = new PasswordHasher<IdentityUser>();
+                    existingTeacherRecord.PasswordHash = passwordHasher.HashPassword(existingTeacherRecord, model.Password);
+                }
+
+                // Update the teacher's properties
+                existingTeacherRecord.FullName = model.FullName;
+                existingTeacherRecord.Email = model.Email;
+                existingTeacherRecord.gender = model.gender;
+                existingTeacherRecord.PhoneNumber = model.PhoneNumber;
+                existingTeacherRecord.Address = model.Address;
+                existingTeacherRecord.DateOfBirth = model.DateOfBirth;
+          
+
+                _context.Users.Update(existingTeacherRecord);
+                _context.SaveChanges();
+
+              
+                return RedirectToAction("TeacherView"); // Redirect to teacher view page after successful update
+            }
+
+            return View(model); // Return to the view if the model is invalid
+        }
+
+        [HttpGet]
+        public IActionResult TeacherDelete(string id)
+        {
+            var RegistrationViewModel = _context.Users
+                .Where(u => u.Id == id)
+                .Select(u => new RegistrationViewModel
+                {
+
+                    FullName = u.FullName,
+                    Email = u.Email,
+                    Password = u.PasswordHash,
+                    gender = u.gender,
+                    PhoneNumber = u.PhoneNumber,
+                    Address = u.Address,
+                    DateOfBirth = u.DateOfBirth,
+                    GardianName = u.GardianName,
+
+
+                })
+                .FirstOrDefault();
+
+            if (RegistrationViewModel == null)
+            {
+                TempData["ErrorMessage"] = "Teacher not found.";
+                return RedirectToAction("TeacherList"); // Redirect to the teacher list page if not found
+            }
+
+            return View(RegistrationViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult TeacherDelete(RegistrationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Retrieve the existing teacher from the database
+                var existingTeacherRecord = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
+
+                if (existingTeacherRecord == null)
+                {
+                    TempData["ErrorMessage"] = "Teacher not found.";
+                    return RedirectToAction("TeacherList"); // Redirect to the teacher list page if not found
+                }
+
+             
+
+                _context.Users.Remove(existingTeacherRecord);
+                _context.SaveChanges();
+
+
+                return RedirectToAction("TeacherView"); // Redirect to teacher view page after successful update
+            }
+
+            return View(model); // Return to the view if the model is invalid
+        }
+
+        [HttpGet]
+        public IActionResult StudentEdit(string id)
+        {
+            var RegistrationViewModel = (from u in _context.Users
+                                         where u.Id == id
+                                         join ua in _context.UserAcadamic on u.Id equals ua.UserID into academicData
+                                         from ua in academicData.DefaultIfEmpty()
+                                         select new RegistrationViewModel
+                                         {
+                                             ID = Guid.Parse(u.Id),
+                                             FullName = u.FullName,
+                                             Email = u.Email,
+                                             Password = u.PasswordHash,
+                                             gender = u.gender,
+                                             PhoneNumber = u.PhoneNumber,
+                                             Address = u.Address,
+                                             DateOfBirth = u.DateOfBirth,
+                                             GardianName = u.GardianName,
+                                             GradeId = ua.GradeId,
+                                             ClassId = ua.ClassId
+                                         }).FirstOrDefault();
+
+            if (RegistrationViewModel == null)
+            {
+                TempData["ErrorMessage"] = "Student not found.";
+
+				return RedirectToAction("StudentView");
+			}
+
+            RegistrationViewModel.Grades = _context.Grades
+                .Select(g => new SelectListItem { Value = g.ID.ToString(), Text = g.Grade.ToString() }).ToList();
+
+            RegistrationViewModel.Classes = _context.Class
+                .Where(c => c.GradeId == RegistrationViewModel.GradeId)
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Class }).ToList();
+
+            return View(RegistrationViewModel);
+        }
+
+        [HttpPost]
+        public IActionResult StudentEdit(RegistrationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingUser = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
+                if (existingUser == null)
+                {
+                    TempData["ErrorMessage"] = "Student not found.";
+
+					return RedirectToAction("StudentView");
+				}
+
+                // Update user information
+                existingUser.FullName = model.FullName;
+                existingUser.Email = model.Email;
+                existingUser.gender = model.gender;
+                existingUser.PhoneNumber = model.PhoneNumber;
+                existingUser.Address = model.Address;
+                existingUser.DateOfBirth = model.DateOfBirth;
+                existingUser.GardianName = model.GardianName;
+
+                // If a new password is provided, update it
+                if (!string.IsNullOrEmpty(model.Password))
+                {
+                    var passwordHasher = new PasswordHasher<IdentityUser>();
+                    existingUser.PasswordHash = passwordHasher.HashPassword(existingUser, model.Password);
+                }
+
+                _context.Users.Update(existingUser);
+
+                // Update or create UserAcademic entry
+                var existingAcademicRecord = _context.UserAcadamic.FirstOrDefault(ua => ua.UserID == existingUser.Id);
+                if (existingAcademicRecord == null)
+                {
+                    _context.UserAcadamic.Add(new ClassRegistrationModel
+                    {
+                        UserID = existingUser.Id, // No need for ToString() as it's already a string
+                        GradeId = model.GradeId,
+                        ClassId = model.ClassId
+                    });
+                }
+                else
+                {
+                    existingAcademicRecord.GradeId = model.GradeId;
+                    existingAcademicRecord.ClassId = model.ClassId;
+                    _context.UserAcadamic.Update(existingAcademicRecord);
+                }
+
+                _context.SaveChanges();
+
+                return RedirectToAction("StudentView");
+            }
+
+            // Reload grade and class dropdowns if the model state is invalid
+            model.Grades = _context.Grades
+                .Select(g => new SelectListItem { Value = g.ID.ToString(), Text = g.Grade.ToString() }).ToList();
+
+            model.Classes = _context.Class
+                .Where(c => c.GradeId == model.GradeId)
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Class }).ToList();
+
+            return View(model);
+        }
+
+		[HttpGet]
+		public IActionResult StudentDelete(string id)
+		{
+			var RegistrationViewModel = (from u in _context.Users
+										 where u.Id == id
+										 join ua in _context.UserAcadamic on u.Id equals ua.UserID into academicData
+										 from ua in academicData.DefaultIfEmpty()
+										 select new RegistrationViewModel
+										 {
+											 ID = Guid.Parse(u.Id),
+											 FullName = u.FullName,
+											 Email = u.Email,
+											 Password = u.PasswordHash,
+											 gender = u.gender,
+											 PhoneNumber = u.PhoneNumber,
+											 Address = u.Address,
+											 DateOfBirth = u.DateOfBirth,
+											 GardianName = u.GardianName,
+											 GradeId = ua.GradeId,
+											 ClassId = ua.ClassId
+										 }).FirstOrDefault();
+
+			if (RegistrationViewModel == null)
+			{
+				TempData["ErrorMessage"] = "Student not found.";
+
+				return RedirectToAction("StudentView");
+			}
+
+			RegistrationViewModel.Grades = _context.Grades
+				.Select(g => new SelectListItem { Value = g.ID.ToString(), Text = g.Grade.ToString() }).ToList();
+
+			RegistrationViewModel.Classes = _context.Class
+				.Where(c => c.GradeId == RegistrationViewModel.GradeId)
+				.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Class }).ToList();
+
+			return View(RegistrationViewModel);
+		}
+
+		[HttpPost]
+		public IActionResult StudentDelete(RegistrationViewModel model)
+		{
+			if (ModelState.IsValid)
+			{
+				var existingUser = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
+				if (existingUser == null)
+				{
+					TempData["ErrorMessage"] = "Student not found.";
+
+					return RedirectToAction("StudentView");
+				}
+
+			
+
+				_context.Users.Remove(existingUser);
+
+				// Update or create UserAcademic entry
+				var existingAcademicRecord = _context.UserAcadamic.FirstOrDefault(ua => ua.UserID == existingUser.Id);
+				if (existingAcademicRecord == null)
+				{
+					_context.UserAcadamic.Add(new ClassRegistrationModel
+					{
+						UserID = existingUser.Id, // No need for ToString() as it's already a string
+						GradeId = model.GradeId,
+						ClassId = model.ClassId
+					});
+				}
+				else
+				{
+					existingAcademicRecord.GradeId = model.GradeId;
+					existingAcademicRecord.ClassId = model.ClassId;
+					_context.UserAcadamic.Remove(existingAcademicRecord);
+				}
+
+				_context.SaveChanges();
+
+				return RedirectToAction("StudentView");
+			}
+
+			// Reload grade and class dropdowns if the model state is invalid
+			model.Grades = _context.Grades
+				.Select(g => new SelectListItem { Value = g.ID.ToString(), Text = g.Grade.ToString() }).ToList();
+
+			model.Classes = _context.Class
+				.Where(c => c.GradeId == model.GradeId)
+				.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Class }).ToList();
+
+			return View(model);
+		}
+	}
+
 }

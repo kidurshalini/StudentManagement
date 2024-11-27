@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc.Rendering;
+﻿using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using StudentManagement.Models;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics;
@@ -6,21 +7,20 @@ using System.Diagnostics;
 namespace StudentManagement.ViewModel
 {
 	public class ClassViewModel
-	{
-        public Guid Id;
+
+    {
+        [Required]
+        public Guid Id { get; set; }
 
         [Required(ErrorMessage = "Grade is required.")]
-		[Display(Name = "Grade")]
-		public Guid GradeId { get; set; }
+        [Display(Name = "Grade")]
+        public Guid GradeId { get; set; }
 
-		[Required(ErrorMessage = "Subject name is required.")]
-		[Display(Name = "Subject Name")]
-		public string Class { get; set; }
+        [Required(ErrorMessage = "Class  is required.")]
+        [Display(Name = "Subject Name")]
+        public string Class { get; set; }
 
-     
-    
-        public  List<SelectListItem> Classes { get; set; }
-
-        public List<SelectListItem> Grades { get; set; }
+        public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
     }
+
 }

@@ -1,13 +1,12 @@
 ﻿@model StudentManagement.ViewModel.ClassViewModel
-
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 
 @{
-    ViewData["Title"] = "Subject Edit Details";
+    ViewData["Title"] = "Delete Class Details";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-
 <body>
+
     @{
         var successMessage = TempData["SuccessMessage"] as string;
         var errorMessage = TempData["ErrorMessage"] as string;
@@ -38,10 +37,10 @@
                 <!-- Form Card with New Design -->
                 <div class="card shadow-lg rounded-3 border-0">
                     <div class="card-header bg-primary text-white text-center">
-                        <h4 class="mb-0">Update Class Details</h4>
+                        <h4 class="mb-0">Delete Class Details</h4>
                     </div>
                     <div class="card-body p-5">
-                        <form asp-controller="Subject" asp-action="ClassEdit" method="post">
+                        <form asp-controller="Subject" asp-action="ClassDelete" method="post">
                             <input type="hidden" asp-for="Id" />
 
                             <!-- Grade Dropdown -->
@@ -50,21 +49,22 @@
                                 <select asp-for="GradeId" class="form-select" asp-items="Model.Grades">
                                     <option value="">-- Select Grade --</option>
                                 </select>
-                                <span asp-validation-for="GradeId" class="text-danger"></span>
+                              
                             </div>
 
                             <!-- Subject Input -->
                             <div class="form-group mb-4">
-                                <label asp-for="Class" class="form-label fw-semibold">Class</label>
-                                <input asp-for="Class" class="form-control" placeholder="Enter Class Name" />
-                                <span asp-validation-for="Class" class="text-danger"></span>
+                                <label asp-for="Class" class="form-label fw-semibold">Subject</label>
+                                <input asp-for="Class" class="form-control" placeholder="Enter Subject Name"/>
+                        
                             </div>
 
                             <!-- Action Buttons -->
                             <div class="d-flex justify-content-center">
                                 <button type="submit" class="btn btn-warning btn-lg me-2">
-                                    Update Subject
+                                    Delete Class
                                 </button>
+
                             </div>
                         </form>
                     </div>

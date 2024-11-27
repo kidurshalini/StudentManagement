@@ -192,7 +192,7 @@ namespace StudentManagement.Controllers
 
                     var Class = new ClassModel
                     {
-                        ID = Guid.NewGuid(),
+                        Id = Guid.NewGuid(),
                         Class = model.Class,
                         GradeId = model.GradeId // Assign the selected grade
                     };
@@ -256,7 +256,7 @@ namespace StudentManagement.Controllers
                 .Include(c => c.Grades) // Ensure Grades navigation property is loaded
                 .Select(c => new ClassViewModel
                 {
-                    Id = c.ID,
+                    Id = c.Id,
                     GradeId = c.GradeId,                  // Use GradeId for reference
                     Class = $"Class {c.Class}",                    
                     Grades = new List<SelectListItem>    // Use Grade integer for display
@@ -412,51 +412,66 @@ namespace StudentManagement.Controllers
             return View(model); // Return to the form with the validation errors
         }
 
+
         // GET: ClassEdit
         [HttpGet]
-        public IActionResult ClassEdit(Guid Id)
+        public IActionResult ClassEdit(Guid id)
         {
-            // Retrieve the class by ID and populate the view model
+            // Retrieve the class with the given Id
             var classViewModel = _context.Class
-                .Where(s => s.ID == Id)
-                .Select(s => new ClassViewModel
+                .Where(c => c.Id == id)
+                .Select(c => new ClassViewModel
                 {
-                    Id = s.ID,
-                    Class = s.Class,
-                    GradeId = s.GradeId,
-                    Grades = _context.Grades
-                        .Select(g => new SelectListItem
-                        {
-                            Value = g.ID.ToString(),
-                            Text = $"Grade {g.Grade}"
-                        })
-                        .ToList()
+                    Id = c.Id,
+                    Class = c.Class,
+                    GradeId = c.GradeId,
+                    Grades = _context.Grades.Select(g => new SelectListItem
+                    {
+                        Value = g.ID.ToString(),
+                        Text = $"Grade {g.Grade}"
+                    }).ToList()
                 })
                 .FirstOrDefault();
 
+            // Check if class is not found
             if (classViewModel == null)
             {
                 TempData["ErrorMessage"] = "Class not found.";
-                return RedirectToAction("ClassEdit"); // Redirect to the list view
+                return RedirectToAction("ClassView"); // Redirect to a list view or appropriate action
             }
 
             return View(classViewModel); // Pass the model to the view
         }
 
+
         // POST: ClassEdit
         [HttpPost]
         public IActionResult ClassEdit(ClassViewModel model)
         {
+            if (model.Id == Guid.Empty)
+            {
+                TempData["ErrorMessage"] = "Invalid Class ID.";
+                model.Grades = _context.Grades
+                      .Select(g => new SelectListItem
+                      {
+                          Value = g.ID.ToString(),
+                          Text = $"Grade {g.Grade}"
+                      })
+                      .ToList();
+
+                return View(model);
+            }
+
             if (ModelState.IsValid)
             {
-                // Check if a class with the same GradeId and Class name already exists
-                var duplicateClass = _context.Class
-                    .FirstOrDefault(c => c.GradeId == model.GradeId && c.Class == model.Class && c.ID != model.Id);
+                // Check for duplicate class with the same GradeId and Class name
+                var existingClass = _context.Class
+                    .FirstOrDefault(c => c.GradeId == model.GradeId && c.Class == model.Class);
 
-                if (duplicateClass != null)
+                if (existingClass != null)
                 {
-                    TempData["ErrorMessage"] = "A class with the same grade and name already exists.";
-                    // Repopulate the dropdown list
+                    TempData["ErrorMessage"] = "This class for the selected grade already exists.";
+                    // Repopulate the dropdown list in case of error
                     model.Grades = _context.Grades
                         .Select(g => new SelectListItem
                         {
@@ -465,30 +480,38 @@ namespace StudentManagement.Controllers
                         })
                         .ToList();
 
-                    return View(model); // Return to the view with an error message
+                    return View(model); // Return to the same view with the error message
                 }
 
-                // Retrieve the existing class record
-                var existingClass = _context.Class.FirstOrDefault(c => c.ID == model.Id);
+                // Retrieve the existing class record from the database
+                var classToUpdate = _context.Class.FirstOrDefault(c => c.Id == model.Id);
 
-                if (existingClass == null)
+                if (classToUpdate == null)
                 {
                     TempData["ErrorMessage"] = "Class not found.";
-                    return RedirectToAction("ClassEdit"); // Redirect to the list page if not found
+                    return RedirectToAction("ClassView"); // Redirect to the list page if class not found
                 }
 
-                // Update the properties
-                existingClass.Class = model.Class;
-                existingClass.GradeId = model.GradeId;
+                // Update the class properties
+                classToUpdate.Class = model.Class;
+                classToUpdate.GradeId = model.GradeId;
 
-                _context.Class.Update(existingClass);
-                _context.SaveChanges();
-
-                TempData["SuccessMessage"] = "Class updated successfully.";
-                return RedirectToAction("ClassView"); // Redirect to the list page after successful update
+                try
+                {
+                    _context.Class.Update(classToUpdate);
+                    _context.SaveChanges();
+                    
+                    return RedirectToAction("ClassView"); // Redirect to the list page after successful update
+                }
+                catch (Exception ex)
+                {
+                    TempData["ErrorMessage"] = $"Error updating class: {ex.Message}";
+                    // Log the exception (optional)
+                    Console.WriteLine(ex.Message);
+                }
             }
 
-            // Reload the Grades dropdown if the model state is invalid
+            // Reload the Grades list in case of validation errors
             model.Grades = _context.Grades
                 .Select(g => new SelectListItem
                 {
@@ -497,8 +520,114 @@ namespace StudentManagement.Controllers
                 })
                 .ToList();
 
-            return View(model); // Return the form with validation errors
+            return View(model); // Return to the form with validation errors
         }
+
+
+        [HttpGet]
+        public IActionResult ClassDelete(Guid id)
+        {
+            var classViewModel = _context.Class
+            .Where(c => c.Id == id)
+            .Select(c => new ClassViewModel
+            {
+                Id = c.Id,
+                Class = c.Class,
+                GradeId = c.GradeId,
+                Grades = _context.Grades.Select(g => new SelectListItem
+                {
+                    Value = g.ID.ToString(),
+                    Text = $"Grade {g.Grade}"
+                }).ToList()
+            })
+            .FirstOrDefault();
+
+            // Check if class is not found
+            if (classViewModel == null)
+            {
+                TempData["ErrorMessage"] = "Class not found.";
+                return RedirectToAction("ClassView"); // Redirect to a list view or appropriate action
+            }
+
+            return View(classViewModel); 
+        }
+        [HttpPost]
+        public IActionResult ClassDelete(ClassViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                if (model.Id == Guid.Empty)
+                {
+                    TempData["ErrorMessage"] = "Invalid Class ID.";
+                    model.Grades = _context.Grades
+                        .Select(g => new SelectListItem
+                        {
+                            Value = g.ID.ToString(),
+                            Text = $"Grade {g.Grade}"
+                        })
+                        .ToList();
+
+                    return View(model);
+                }
+
+                // Check for existing class dependencies
+                var hasDependencies = _context.UserAcadamic.Any(ua => ua.ClassId == model.Id);
+                if (hasDependencies)
+                {
+                    TempData["ErrorMessage"] = "This class is currently in use and cannot be deleted.";
+                    model.Grades = _context.Grades
+                        .Select(g => new SelectListItem
+                        {
+                            Value = g.ID.ToString(),
+                            Text = $"Grade {g.Grade}"
+                        })
+                        .ToList();
+
+                    return View(model);
+                }
+
+                try
+                {
+                    // Retrieve the class to delete
+                    var classToRemove = _context.Class.FirstOrDefault(c => c.Id == model.Id);
+
+                    if (classToRemove == null)
+                    {
+                        TempData["ErrorMessage"] = "Class not found.";
+                        return RedirectToAction("ClassView");
+                    }
+
+                    // Delete the class
+                    _context.Class.Remove(classToRemove);
+                    _context.SaveChanges();
+
+              
+                    return RedirectToAction("ClassView");
+                }
+                catch (DbUpdateException ex)
+                {
+                    // Log the exception for debugging
+                    Console.WriteLine(ex);
+
+                    // Show a user-friendly message
+                    TempData["ErrorMessage"] = "Unable to delete this class as it is being referenced by other records.";
+                }
+            }
+
+            // Reload the Grades list in case of validation errors
+            model.Grades = _context.Grades
+                .Select(g => new SelectListItem
+                {
+                    Value = g.ID.ToString(),
+                    Text = $"Grade {g.Grade}"
+                })
+                .ToList();
+
+            return View(model);
+        }
+
+
+
 
     }
 }

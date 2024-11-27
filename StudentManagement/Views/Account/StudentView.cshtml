@@ -1,0 +1,55 @@
+﻿@model List<StudentManagement.ViewModel.RegistrationViewModel>
+
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+
+@{
+	ViewData["Title"] = "View Students";
+	Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<div class="container mt-5">
+	<div class="card shadow">
+		<div class="card-header bg-Secondary text-dark" style="background-color:#e5e4e2;">
+			<h2 class="text-center mb-0">List of Students</h2>
+		</div>
+		<div class="card-body">
+			<table class="table table-striped table-hover text-center table-bordered">
+				<thead class="table-primary">
+
+		<tr  style="font-size:18px">
+			<th>Email</th>
+			<th>Full Name</th>
+			<th>Gender</th>
+			<th>Guardian Name</th>
+			<th>Phone Number</th>
+			<th>Address</th>
+			<th>Date of Birth</th>
+			<th>Grade</th>
+			<th>Class</th>
+			<th></th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var student in Model)
+		{
+			<tr style="font-size:16px">
+				<td>@student.Email</td>
+				<td>@student.FullName</td>
+				<td>@student.gender</td>
+				<td>@student.GardianName</td>
+				<td>@student.PhoneNumber</td>
+				<td>@student.Address</td>
+				<td>@student.DateOfBirth.ToString("yyyy-MM-dd")</td>
+				<td>@student.Grades.FirstOrDefault()?.Text </td>
+				<td>@student.Classes.FirstOrDefault()?.Text</td>
+				<td>
+					<a asp-controller="Account" asp-action="StudentEdit" asp-route-id="@student.ID" class="btn btn-sm btn-warning me-1">Edit</a>
+								<a asp-controller="Account" asp-action="StudentDelete" asp-route-id="@student.ID" class="btn btn-sm btn-danger">Delete</a>
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>

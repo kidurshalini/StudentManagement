@@ -44,8 +44,13 @@
                                         </a>
                                     </li>
                                     <li>
-                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Subject">
-                                            <i class="bi bi-book"></i> Subjects
+                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="TeacherView">
+                                            <i class="bi bi-person-lines-fill"></i> Teacher Details
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="StudentView">
+                                            <i class="bi bi-person-workspace"></i> Student Details
                                         </a>
                                     </li>
                                 </ul>
@@ -74,18 +79,20 @@
 
                                     <li>
                                         <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="ClassView">
-                                            <i class="bi bi bi-journals"></i> Class Details
+                                            <i class="bi bi-journal-text"></i> Class Details
                                         </a>
                                     </li>
+
                                 </ul>
                             </li>
                             
                         }
                         else if (User.IsInRole(StudentManagement.Common.CustomRole.Teacher))
                         {
+                         
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    User Details
+                                    User
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
@@ -98,32 +105,64 @@
                                             <i class="bi bi-book"></i> Subjects
                                         </a>
                                     </li>
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Account" asp-action="StudentView">
+                                            <i class="bi bi-person-vcard"></i> Student Details
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    Acedamic Details
+                                    Acedamic
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end">
                                     <li>
                                         <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Subject">
-                                            <i class="bi bi-book-half"></i> Subjects
+                                            <i class="bi bi-book-half"></i> Subjects Registration
                                         </a>
                                     </li>
                                     <li>
                                         <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="Class">
-                                            <i class="bi bi-house-fill"></i> Class
+                                            <i class="bi bi-house-fill"></i> Class Registration
                                         </a>
                                     </li>
 
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="ViewSubject">
+                                            <i class="bi bi bi-journals"></i> Subject Details
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="ClassView">
+                                            <i class="bi bi-journal-text"></i> Class Details
+                                        </a>
+                                    </li>
                                 </ul>
                             </li>
                         }
                         else if (User.IsInRole(StudentManagement.Common.CustomRole.Student))
 
                         {
-                            <li class="nav-item">
-                                <a class="nav-link text-white nav-link-custom" asp-area="" asp-controller="Student" asp-action="Details">View Details</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Acedamic
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="ViewSubject">
+                                            <i class="bi bi bi-journals"></i> Subject Details
+                                        </a>
+                                    </li>
+
+                                    <li>
+                                        <a class="dropdown-item" asp-area="" asp-controller="Subject" asp-action="ClassView">
+                                            <i class="bi bi-journal-text"></i> Class Details
+                                        </a>
+                                    </li>
+                                </ul>
                             </li>
                         }
                     </ul>
