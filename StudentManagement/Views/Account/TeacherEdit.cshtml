@@ -170,10 +170,10 @@
     </div>
 
     <div class="card shadow border-0 rounded-3">
-        <div class="card-header bg-primary text-white text-center p-4">
+        <div class="card-header bg-warning text-dark text-center">
             <h2 class="mb-0">Teacher Update Form</h2>
         </div>
-        <div class="card-body ">
+        <div class="card-body">
             <form asp-controller="Account" asp-action="TeacherEdit" method="post">
                 <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
@@ -223,8 +223,8 @@
                 <!-- Optional: Guardian and Grade fields can be added here if necessary -->
 
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-warning px-5 py-2 fw-bold">Update</button>
-                    <button type="submit" class="btn btn-secondary px-5 py-2 fw-bold">Back</button>
+                    <button type="submit" class="btn btn-warning px-5 py-2 fw-bold">Update Teacher</button>
+                    <a asp-controller="Account" asp-action="teacherback" class="btn btn-secondary px-5 py-2 fw-bold"> Back</a>
                 </div>
             </form>
         </div>

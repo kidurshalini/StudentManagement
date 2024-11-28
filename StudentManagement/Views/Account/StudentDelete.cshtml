@@ -209,7 +209,7 @@
     </div>
 
     <div class="card shadow border-0 rounded-3">
-        <div class="card-header bg-danger text-white text-center p-4">
+        <div class="card-header bg-danger text-white text-center">
             <h2 class="mb-0">Student Delete Form</h2>
         </div>
         <div class="card-body">
@@ -252,18 +252,16 @@
                         <span asp-validation-for="Email" class="text-danger"></span>
                     </div>
                     <input type="hidden" asp-for="Password" value="Password" />
-                </div>
+             
 
-                <div id="guardianFields" class="row g-3" style="display: none;">
-                    <div class="col-md-12">
+                    <div id="guardianFields" class="col-md-6">
                         <label asp-for="GardianName" class="form-label fw-bold">Guardian Name</label>
                         <input asp-for="GardianName" class="form-control" readonly />
                         <span asp-validation-for="GardianName" class="text-danger"></span>
                     </div>
-                </div>
-
-                <div id="gradeFields" class="row g-3" style="display: none;">
-                    <div class="col-md-6">
+                
+             
+                    <div id="gradeFields" class="col-md-6">
                         <label asp-for="GradeId" class="form-label fw-bold">Grade</label>
                         <select asp-for="GradeId" class="form-select" disabled>
                             <option value="">-- Select Grade --</option>
@@ -294,7 +292,8 @@
                 </div>
 
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-danger px-4 me-2">Delete</button>
+                    <button type="submit" class="btn btn-danger px-4 me-2 fw-bold">Delete Student</button>
+                    <a asp-controller="Account" asp-action="studentback" class="btn btn-secondary px-5 py-2 fw-bold"> Back</a>
                 </div>
             </form>
         </div>

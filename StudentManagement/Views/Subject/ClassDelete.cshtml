@@ -35,11 +35,11 @@
                 </div>
 
                 <!-- Form Card with New Design -->
-                <div class="card shadow-lg rounded-3 border-0">
-                    <div class="card-header bg-primary text-white text-center">
+                <div class="card shadow rounded-3 border-0">
+                    <div class="card-header bg-danger text-white text-center">
                         <h4 class="mb-0">Delete Class Details</h4>
                     </div>
-                    <div class="card-body p-5">
+                    <div class="card-body">
                         <form asp-controller="Subject" asp-action="ClassDelete" method="post">
                             <input type="hidden" asp-for="Id" />
 
@@ -61,10 +61,10 @@
 
                             <!-- Action Buttons -->
                             <div class="d-flex justify-content-center">
-                                <button type="submit" class="btn btn-warning btn-lg me-2">
+                                <button type="submit" class="btn btn-warning me-2">
                                     Delete Class
                                 </button>
-
+                             
                             </div>
                         </form>
                     </div>

@@ -215,7 +215,7 @@
     </div>
 
     <div class="card shadow border-0 rounded-3">
-        <div class="card-header bg-primary text-white text-center p-4">
+        <div class="card-header bg-warning text-dark text-center">
             <h2 class="mb-0">Student Update Form</h2>
         </div>
         <div class="card-body ">
@@ -237,7 +237,7 @@
                     </div>
                     <div class="col-md-12">
                         <label asp-for="Address" class="form-label fw-bold">Address</label>
-                        <textarea asp-for="Address" class="form-control shadow-sm" rows="3" placeholder="Enter Address"></textarea>
+                        <textarea asp-for="Address" class="form-control shadow-sm" rows="2" placeholder="Enter Address"></textarea>
                         <span asp-validation-for="Address" class="text-danger"></span>
                     </div>
                     <div class="col-md-6">
@@ -262,18 +262,18 @@
                         <input asp-for="Password" type="password" class="form-control shadow-sm" placeholder="Enter Password" />
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
-                </div>
+              
 
-                <div id="guardianFields" class="row g-4 mt-1" style="display: none;">
-                    <div class="col-md-12">
+            
+                        <div id="guardianFields" class="col-md-12">
                         <label asp-for="GardianName" class="form-label fw-bold">Guardian Name</label>
                         <input asp-for="GardianName" class="form-control shadow-sm" placeholder="Enter Guardian Name" />
                         <span asp-validation-for="GardianName" class="text-danger"></span>
                     </div>
-                </div>
+              
 
-                <div id="gradeFields" class="row g-4 mt-1" style="display: none;">
-                    <div class="col-md-6">
+               
+                        <div id="gradeFields"  class="col-md-6">
                         <label asp-for="GradeId" class="form-label fw-bold">Grade</label>
                         <select asp-for="GradeId" class="form-select shadow-sm">
                             <option value="">-- Select Grade --</option>
@@ -286,7 +286,7 @@
                             }
                         </select>
                         <span asp-validation-for="GradeId" class="text-danger"></span>
-                    </div>
+                   </div>
                     <div class="col-md-6">
                         <label asp-for="ClassId" class="form-label fw-bold">Class</label>
                         <select asp-for="ClassId" class="form-select shadow-sm">
@@ -302,10 +302,10 @@
                         <span asp-validation-for="ClassId" class="text-danger"></span>
                     </div>
                 </div>
-
+             
                 <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-warning px-5 py-2 fw-bold">Update</button
-                    <button type="submit" class="btn btn-secondary px-5 py-2 fw-bold">Back</button>
+                    <button type="submit" class="btn btn-warning px-5 py-2 fw-bold">Update Student</button>
+                          <a asp-controller="Account" asp-action="studentback" class="btn btn-secondary px-5 py-2 fw-bold"> Back</a>
                 </div>
             </form>
         </div>

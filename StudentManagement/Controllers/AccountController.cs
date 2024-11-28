@@ -113,25 +113,74 @@ namespace StudentManagement.Controllers
             return View();
         }
 
+        //[HttpPost]
+        //public async Task<IActionResult> Login(LoginViewModel model)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+
+        //        if (result.Succeeded)
+        //        {
+        //            return RedirectToAction("Index", "Home");
+        //        }
+        //        else
+        //        {
+        //            ModelState.AddModelError("", "Email or Password incorrect");
+        //            return View(model);
+        //        }
+        //    }
+        //    return View(model);
+        //}
+
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            if (ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                return View(model); // Return the same view with errors if model validation fails.
+            }
 
-                if (result.Succeeded)
+            // Attempt to sign in the user.
+            var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, lockoutOnFailure: false);
+
+            if (result.Succeeded)
+            {
+                // Fetch the user details.
+                var user = await _userManager.FindByEmailAsync(model.Email);
+
+                if (user != null)
                 {
+                    // Store user details in session
+                    HttpContext.Session.SetString("UserId", user.Id);
+                    HttpContext.Session.SetString("UserEmail", user.Email);
+                    HttpContext.Session.SetString("FullName", user.FullName); // Assuming `FullName` exists in `RegistrationModel`.
+
+                    // Redirect to the desired page (e.g., Home or Dashboard).
                     return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    ModelState.AddModelError("", "Email or Password incorrect");
-                    return View(model);
-                }
+
+                // Handle the unlikely case where user is null.
+                ModelState.AddModelError("", "An error occurred while processing your login. Please try again.");
+                return View(model);
             }
-            return View(model);
+            else if (result.IsLockedOut)
+            {
+                ModelState.AddModelError("", "Your account is locked out. Please try again later.");
+            }
+            else if (result.RequiresTwoFactor)
+            {
+                return RedirectToAction("SendCode", new { ReturnUrl = Url.Action("Index", "Home"), RememberMe = model.RememberMe });
+            }
+            else
+            {
+                ModelState.AddModelError("", "Invalid login attempt. Please check your email and password.");
+            }
+
+            return View(model); // Return the view with errors if login fails.
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Register(RegistrationViewModel model)
@@ -788,6 +837,16 @@ namespace StudentManagement.Controllers
 
 			return View(model);
 		}
-	}
+
+        public IActionResult studentback()
+        {
+            return RedirectToAction("studentview");
+        }
+
+        public IActionResult teacherback()
+        {
+            return RedirectToAction("studentview");
+        }
+    }
 
 }

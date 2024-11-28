@@ -1,4 +1,6 @@
-﻿namespace StudentManagement.Models
+﻿using System.Diagnostics;
+
+namespace StudentManagement.Models
 {
     public class SubjectModel
     {
@@ -10,6 +12,6 @@
 
         public GradeModel Grades { get; set; }
 
-      
+        
     }
 }
