@@ -1,0 +1,223 @@
+﻿@model StudentManagement.ViewModel.MarksViewModel
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+
+@{
+    ViewData["Title"] = "Marks Form";
+
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<body>
+    <div class="container-fluid">
+        @if (TempData["SuccessMessage"] != null || TempData["ErrorMessage"] != null)
+        {
+            <div class="container text-center my-3">
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success d-inline-flex align-items-center">
+                        <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> @TempData["SuccessMessage"]
+                    </div>
+                }
+
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger d-inline-flex align-items-center">
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Error!</strong> @TempData["ErrorMessage"]
+                    </div>
+                }
+            </div>
+        }
+        <div class="card-header  text-dark text-center">
+            <h3 class="mb-0 fw-bold">For get marksheet add details</h3>
+        </div>
+        <div class="d-flex justify-content-center align-items-start pt-2">
+
+            <form asp-controller="Marks" asp-action="MarksFormSubmit" method="post" class="d-flex justify-content-between align-items-center p-4" style="width: auto; max-width: 1000px;">
+
+                <!-- Grade -->
+                <div class="d-flex align-items-center me-3">
+                    <label asp-for="GradeId" class="form-label fw-bold me-2 mb-0">Grade:</label>
+                    <select asp-for="GradeId" class="form-select form-select-sm">
+                        <option value="">-- Select Grade --</option>
+                        @if (Model.Grades != null)
+                        {
+                            @foreach (var grade in Model.Grades)
+                            {
+                                <option value="@grade.Value">@grade.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <!-- Class -->
+                <div class="d-flex align-items-center me-3">
+                    <label asp-for="ClassId" class="form-label fw-bold me-2 mb-0">Class:</label>
+                    <select asp-for="ClassId" class="form-select form-select-sm">
+                        <option value="">-- Select Class --</option>
+                        @if (Model.Classes != null)
+                        {
+                            @foreach (var classItem in Model.Classes)
+                            {
+                                <option value="@classItem.Value">@classItem.Text</option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <!-- Term -->
+                <div class="d-flex align-items-center me-3">
+                    <label asp-for="Term" class="form-label fw-bold me-2 mb-0">Term:</label>
+                    <select asp-for="Term" class="form-select form-select-sm" id="TermId">
+                        <option value="">-- Select Term --</option>
+                    </select>
+                </div>
+
+                <!-- Load Subjects Button -->
+                <div class="d-flex align-items-center">
+                    <label class="form-label fw-bold me-2 mb-0">&nbsp;</label>
+                    <button type="button" id="loadmarksheet" class="btn btn-warning btn-sm">Load MarksSheet</button>
+                </div>
+            </form>
+
+
+        </div>
+    </div>
+    <div class=" me-3">
+        <div id="marksContainer">
+            <!-- Checkboxes will be dynamically loaded here -->
+        </div>
+    </div>
+</body>
+
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+
+
+
+    $(document).ready(function () {
+        // AJAX call to fetch classes based on selected grade
+        $('#GradeId').change(function () {
+            var gradeId = $(this).val();
+            var classId = $('#ClassId').val(); // Get the current selected classId
+
+            // Update the classes dropdown
+            if (gradeId) {
+                $.ajax({
+                    url: '@Url.Action("UpdateClasses", "Marks")', // Correct controller name
+                    type: 'GET',
+                    data: { gradeId: gradeId },
+                    success: function (data) {
+                        var classDropdown = $('#ClassId');
+                        classDropdown.empty();
+                        classDropdown.append('<option value="">-- Select Class --</option>');
+                        $.each(data, function (index, item) {
+                            classDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                        });
+                    }
+                });
+            }
+
+            // Trigger fetching users when both GradeId and ClassId are selected
+            if (gradeId && classId) {
+                getUsersByGradeAndClass(gradeId, classId);
+            } else {
+                $('#UserID').empty().append('<option value="">-- Select User --</option>');
+            }
+        });
+
+        // AJAX call to fetch users based on selected grade and class
+        $('#ClassId').change(function () {
+            var gradeId = $('#GradeId').val();
+            var classId = $(this).val();
+
+            if (gradeId && classId) {
+                getUsersByGradeAndClass(gradeId, classId);
+            } else {
+                $('#UserID').empty().append('<option value="">-- Select User --</option>');
+            }
+        });
+
+        // Function to fetch users
+        function getUsersByGradeAndClass(gradeId, classId) {
+            $.ajax({
+                url: '@Url.Action("GetUsersByGradeAndClass", "Marks")', // Correct controller name and action
+                type: 'GET',
+                data: { gradeId: gradeId, classId: classId },
+                success: function (data) {
+                    var userDropdown = $('#UserID');
+                    userDropdown.empty();
+                    userDropdown.append('<option value="">-- Select User --</option>');
+                    $.each(data, function (index, item) {
+                        userDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                    });
+                },
+                error: function () {
+
+                }
+            });
+        }
+    });
+
+</script>
+<script>
+    $(document).ready(function () {
+        // Fetch terms based on the selected grade
+        $('#GradeId').change(function () {
+            var gradeId = $(this).val();
+
+            if (gradeId) {
+                $.ajax({
+                    url: '@Url.Action("GetTermsByGrade", "Marks")', // Correct controller and action
+                    type: 'GET',
+                    data: { gradeId: gradeId },
+                    success: function (data) {
+                        var termDropdown = $('#TermId');
+                        termDropdown.empty();
+                        termDropdown.append('<option value="">-- Select Term --</option>');
+                        $.each(data, function (index, item) {
+                            termDropdown.append('<option value="' + item.value + '">' + item.text + '</option>');
+                        });
+                    },
+                    error: function () {
+                        console.error("Failed to load terms.");
+                    }
+                });
+            } else {
+                $('#TermId').empty().append('<option value="">-- Select Term --</option>');
+            }
+        });
+    });
+
+</script>
+<script>
+    $(document).ready(function () {
+        $('#loadmarksheet').click(function (e) {
+            e.preventDefault();
+
+            var gradeId = $('#GradeId').val();
+            var classId = $('#ClassId').val();
+            var term = $('#TermId').val();
+
+            if (!gradeId || !classId || !term) {
+                alert('Please select all fields.');
+                return;
+            }
+
+            // Fetch marksheet from the server
+            $.ajax({
+                url: '/Marks/MarksSheetGenerator',
+                type: 'GET',
+                data: { gradeId: gradeId, classId: classId, term: term },
+                success: function (data) {
+                    $('#marksContainer').html(data);
+                },
+                error: function () {
+                    alert('Error loading marksheet.');
+                }
+            });
+        });
+    });
+
+</script>

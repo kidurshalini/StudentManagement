@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace StudentManagement.Migrations
 {
     /// <inheritdoc />
-    public partial class marksmigration : Migration
+    public partial class marksdetails : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -21,25 +21,26 @@ namespace StudentManagement.Migrations
                 newName: "Id");
 
             migrationBuilder.CreateTable(
-                name: "Marks",
+                name: "MarksDetail",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UserID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     SubjectID = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Marks = table.Column<int>(type: "int", nullable: false)
+                    Marks = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Term = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Marks", x => x.Id);
+                    table.PrimaryKey("PK_MarksDetail", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Marks_AspNetUsers_UserID",
+                        name: "FK_MarksDetail_AspNetUsers_UserID",
                         column: x => x.UserID,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Marks_Subject_SubjectID",
+                        name: "FK_MarksDetail_Subject_SubjectID",
                         column: x => x.SubjectID,
                         principalTable: "Subject",
                         principalColumn: "ID",
@@ -47,13 +48,13 @@ namespace StudentManagement.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Marks_SubjectID",
-                table: "Marks",
+                name: "IX_MarksDetail_SubjectID",
+                table: "MarksDetail",
                 column: "SubjectID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Marks_UserID",
-                table: "Marks",
+                name: "IX_MarksDetail_UserID",
+                table: "MarksDetail",
                 column: "UserID");
 
             migrationBuilder.AddForeignKey(
@@ -73,7 +74,7 @@ namespace StudentManagement.Migrations
                 table: "Class");
 
             migrationBuilder.DropTable(
-                name: "Marks");
+                name: "MarksDetail");
 
             migrationBuilder.RenameColumn(
                 name: "Id",

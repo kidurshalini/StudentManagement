@@ -227,6 +227,12 @@ namespace StudentManagement.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("ClassId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("GradeId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Marks")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -244,11 +250,15 @@ namespace StudentManagement.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ClassId");
+
+                    b.HasIndex("GradeId");
+
                     b.HasIndex("SubjectID");
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Marks");
+                    b.ToTable("MarksDetail");
                 });
 
             modelBuilder.Entity("StudentManagement.Models.RegistrationModel", b =>
@@ -467,6 +477,18 @@ namespace StudentManagement.Migrations
 
             modelBuilder.Entity("StudentManagement.Models.MarksModel", b =>
                 {
+                    b.HasOne("StudentManagement.Models.ClassModel", "Class")
+                        .WithMany()
+                        .HasForeignKey("ClassId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("StudentManagement.Models.GradeModel", "Grade")
+                        .WithMany()
+                        .HasForeignKey("GradeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
                     b.HasOne("StudentManagement.Models.SubjectModel", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectID")
@@ -478,6 +500,10 @@ namespace StudentManagement.Migrations
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Class");
+
+                    b.Navigation("Grade");
 
                     b.Navigation("Registration");
 

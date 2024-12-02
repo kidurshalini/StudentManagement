@@ -12,8 +12,8 @@ using StudentManagement.Models;
 namespace StudentManagement.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20241128193342_addterm")]
-    partial class addterm
+    [Migration("20241202050337_marksdetails")]
+    partial class marksdetails
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -251,7 +251,7 @@ namespace StudentManagement.Migrations
 
                     b.HasIndex("UserID");
 
-                    b.ToTable("Marks");
+                    b.ToTable("MarksDetail");
                 });
 
             modelBuilder.Entity("StudentManagement.Models.RegistrationModel", b =>

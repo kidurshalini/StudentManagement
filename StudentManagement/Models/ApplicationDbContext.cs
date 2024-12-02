@@ -66,6 +66,18 @@ namespace StudentManagement.Models
         .HasForeignKey(s => s.SubjectID)
         .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<MarksModel>()
+              .HasOne(c => c.Grade)
+                 .WithMany()
+              .HasForeignKey(c => c.GradeId)
+              .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<MarksModel>()
+           .HasOne(c => c.Class)
+           .WithMany()
+           .HasForeignKey(c => c.ClassId)
+           .OnDelete(DeleteBehavior.Restrict);
+
         }
 
 
@@ -76,7 +88,7 @@ namespace StudentManagement.Models
         public DbSet<SubjectModel> Subject { get; set; }
 
         public DbSet<ClassRegistrationModel> UserAcadamic { get; set; }
-            public DbSet<MarksModel> Marks { get; set; }
+        public DbSet<MarksModel> MarksDetail { get; set; }
 
     }
 }

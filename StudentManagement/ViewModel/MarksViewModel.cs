@@ -25,16 +25,20 @@ namespace StudentManagement.ViewModel
         [Display(Name = "Class")]
         public Guid ClassId { get; set; }
 
-        [Display(Name = "Subjects")]
-        public List<Guid> SubjectId { get; set; } = new List<Guid>();
+     
 
 
         public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Classes { get; set; } = new List<SelectListItem>();
-        public List<SelectListItem> Users { get; set; }
-
+        public List<SelectListItem> Users { get; set; } = new List<SelectListItem>();
+        public List<SelectListItem> Subjects { get; set; }
         public Dictionary<Guid, string> SubjectMarks { get; set; }
         public string Marks { get; set; }
         public string Term { get; set; }
+
+        public GradeModel Grade { get; set; }
+        public ClassModel Class { get; set; }
+       
+
     }
 }
