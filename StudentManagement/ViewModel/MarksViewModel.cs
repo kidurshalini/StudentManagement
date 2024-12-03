@@ -31,14 +31,15 @@ namespace StudentManagement.ViewModel
         public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Classes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Users { get; set; } = new List<SelectListItem>();
-        public List<SelectListItem> Subjects { get; set; }
-        public Dictionary<Guid, string> SubjectMarks { get; set; }
+        public List<SelectListItem> Subjects { get; set; } = new List<SelectListItem>();
+        public Dictionary<Guid, string> MarksDetail { get; set; }
         public string Marks { get; set; }
         public string Term { get; set; }
 
         public GradeModel Grade { get; set; }
         public ClassModel Class { get; set; }
-       
+
+        public Dictionary<Guid, string> SubjectMarks { get; set; }
 
     }
 }

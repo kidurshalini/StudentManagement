@@ -196,6 +196,7 @@ namespace StudentManagement.Controllers
             if (existingUser != null)
             {
                 ModelState.AddModelError("Email", "Email is already in use.");
+               
                 return View("Registration", model);
             }
 
@@ -802,7 +803,6 @@ namespace StudentManagement.Controllers
 
 			
 
-				_context.Users.Remove(existingUser);
 
 				// Update or create UserAcademic entry
 				var existingAcademicRecord = _context.UserAcadamic.FirstOrDefault(ua => ua.UserID == existingUser.Id);
@@ -812,7 +812,8 @@ namespace StudentManagement.Controllers
 					{
 						UserID = existingUser.Id, // No need for ToString() as it's already a string
 						GradeId = model.GradeId,
-						ClassId = model.ClassId
+						ClassId = model.ClassId,
+
 					});
 				}
 				else
@@ -822,7 +823,8 @@ namespace StudentManagement.Controllers
 					_context.UserAcadamic.Remove(existingAcademicRecord);
 				}
 
-				_context.SaveChanges();
+                _context.Users.Remove(existingUser);
+                _context.SaveChanges();
 
 				return RedirectToAction("StudentView");
 			}

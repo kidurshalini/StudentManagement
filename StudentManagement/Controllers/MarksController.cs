@@ -234,6 +234,110 @@ namespace StudentManagement.Controllers
         }
 
 
+        //public IActionResult MarksSheetGenerator(Guid gradeId, Guid classId, string term)
+        //{
+        //    if (gradeId == Guid.Empty || classId == Guid.Empty || string.IsNullOrEmpty(term))
+        //    {
+        //        return RedirectToAction("MarksForm");
+        //    }
+
+        //    var subjects = _context.Subject
+        //        .Where(s => s.GradeId == gradeId)
+        //        .Select(s => new { s.ID, s.Subject })
+        //        .ToList();
+
+        //    var gradeName = _context.Grades
+        //        .Where(g => g.ID == gradeId)
+        //        .Select(g => g.Grade.ToString())
+        //        .FirstOrDefault() ?? "Unknown Grade";
+
+        //    var marks = _context.MarksDetail
+        //        .Where(m => m.GradeId == gradeId && m.ClassId == classId && m.Term == term)
+        //        .ToList();
+
+        //    var htmlBuilder = new StringBuilder();
+
+        //    htmlBuilder.AppendLine("<div class='container mt-4'>");
+        //    htmlBuilder.AppendLine("  <div class='card shadow-sm'>");
+        //    htmlBuilder.AppendLine("    <div class='card-header text-white bg-secondary'>");
+        //    htmlBuilder.AppendLine($"      <h4 class='mb-0 text-center'>Marksheet for Grade {gradeName} - {term}</h4>");
+        //    htmlBuilder.AppendLine("    </div>");
+        //    htmlBuilder.AppendLine("    <div class='card-body'>");
+
+        //    htmlBuilder.AppendLine("      <div class='table-responsive'>");
+        //    htmlBuilder.AppendLine("        <table class='table table-striped table-hover text-center table-bordered'>");
+        //    htmlBuilder.AppendLine("          <thead>");
+        //    htmlBuilder.AppendLine("            <tr>");
+        //    htmlBuilder.AppendLine("              <th>Student</th>");
+
+        //    foreach (var subject in subjects)
+        //    {
+        //        htmlBuilder.AppendLine($"              <th>{subject.Subject}</th>");
+        //    }
+
+
+        //    htmlBuilder.AppendLine($"              <th>Total</th>");
+        //    htmlBuilder.AppendLine($"              <th>Avarage</th>");
+        //    htmlBuilder.AppendLine("              <th>Rank</th>");
+
+        //    htmlBuilder.AppendLine("            </tr>");
+        //    htmlBuilder.AppendLine("          </thead>");
+        //    htmlBuilder.AppendLine("          <tbody>");
+
+        //    var students = marks.GroupBy(m => m.UserID);
+
+        //    foreach (var studentGroup in students)
+        //    {
+        //        var studentId = studentGroup.Key;
+        //        var studentName = _context.Users
+        //            .Where(r => r.Id == studentId)
+        //            .Select(r => r.FullName)
+        //            .FirstOrDefault() ?? "Unknown Student";
+
+        //        htmlBuilder.AppendLine("            <tr>");
+        //        htmlBuilder.AppendLine($"              <td>{studentName}</td>");
+
+        //        int count = 0;
+        //        int totalMarks = 0; 
+        //        foreach (var subject in subjects)
+        //        {
+        //            var studentMarks = studentGroup
+        //                .FirstOrDefault(m => m.SubjectID == subject.ID)?.Marks ?? "N/A";
+
+        //            htmlBuilder.AppendLine($"              <td>{studentMarks}</td>");
+
+
+        //            count++;
+        //            if (int.TryParse(studentMarks, out int numericMarks))
+        //            {
+
+        //                totalMarks += numericMarks; 
+        //            }
+
+        //        }
+
+        //        int average = totalMarks / count;
+
+
+        //        htmlBuilder.AppendLine($"<td>{totalMarks}</td>");
+        //        htmlBuilder.AppendLine($"<td>{average}</td>");
+
+
+
+
+        //        htmlBuilder.AppendLine("            </tr>");
+        //    }
+
+        //    htmlBuilder.AppendLine("          </tbody>");
+        //    htmlBuilder.AppendLine("        </table>");
+        //    htmlBuilder.AppendLine("      </div>");
+        //    htmlBuilder.AppendLine("    </div>");
+        //    htmlBuilder.AppendLine("  </div>");
+        //    htmlBuilder.AppendLine("</div>");
+
+        //    return Content(htmlBuilder.ToString(), "text/html");
+        //}
+
         public IActionResult MarksSheetGenerator(Guid gradeId, Guid classId, string term)
         {
             if (gradeId == Guid.Empty || classId == Guid.Empty || string.IsNullOrEmpty(term))
@@ -259,15 +363,16 @@ namespace StudentManagement.Controllers
 
             htmlBuilder.AppendLine("<div class='container mt-4'>");
             htmlBuilder.AppendLine("  <div class='card shadow-sm'>");
-            htmlBuilder.AppendLine("    <div class='card-header text-white bg-primary'>");
+            htmlBuilder.AppendLine("    <div class='card-header text-white bg-secondary'>");
             htmlBuilder.AppendLine($"      <h4 class='mb-0 text-center'>Marksheet for Grade {gradeName} - {term}</h4>");
             htmlBuilder.AppendLine("    </div>");
             htmlBuilder.AppendLine("    <div class='card-body'>");
 
             htmlBuilder.AppendLine("      <div class='table-responsive'>");
-            htmlBuilder.AppendLine("        <table class='table table-striped table-hover text-center table-bordered'>");
-            htmlBuilder.AppendLine("          <thead>");
+            htmlBuilder.AppendLine("        <table class='table table-hover text-center table-bordered'>");
+            htmlBuilder.AppendLine("          <thead class= 'table-secondary'>");
             htmlBuilder.AppendLine("            <tr>");
+            htmlBuilder.AppendLine("              <th>Rank</th>");
             htmlBuilder.AppendLine("              <th>Student</th>");
 
             foreach (var subject in subjects)
@@ -275,32 +380,54 @@ namespace StudentManagement.Controllers
                 htmlBuilder.AppendLine($"              <th>{subject.Subject}</th>");
             }
 
+            htmlBuilder.AppendLine("              <th>Total</th>");
+            htmlBuilder.AppendLine("              <th>Average</th>");
             htmlBuilder.AppendLine("            </tr>");
             htmlBuilder.AppendLine("          </thead>");
             htmlBuilder.AppendLine("          <tbody>");
 
-            var students = marks.GroupBy(m => m.UserID);
+            // Calculate total marks for each student
+            var studentTotals = marks
+                .GroupBy(m => m.UserID)
+                .Select(g => new
+                {
+                    UserID = g.Key,
+                    TotalMarks = g.Sum(m => int.TryParse(m.Marks, out int marks) ? marks : 0),
+                    Marks = g.ToList()
+                })
+                .OrderByDescending(x => x.TotalMarks) // Sort by total marks in descending order
+                .ToList();
 
-            foreach (var studentGroup in students)
+            int rank = 1;
+            foreach (var student in studentTotals)
             {
-                var studentId = studentGroup.Key;
                 var studentName = _context.Users
-                    .Where(r => r.Id == studentId)
+                    .Where(r => r.Id == student.UserID)
                     .Select(r => r.FullName)
                     .FirstOrDefault() ?? "Unknown Student";
 
                 htmlBuilder.AppendLine("            <tr>");
+                htmlBuilder.AppendLine($"              <td>{rank}</td>");
                 htmlBuilder.AppendLine($"              <td>{studentName}</td>");
+
+                int totalMarks = student.TotalMarks;
+                int count = 0;
 
                 foreach (var subject in subjects)
                 {
-                    var studentMarks = studentGroup
+                    var studentMarks = student.Marks
                         .FirstOrDefault(m => m.SubjectID == subject.ID)?.Marks ?? "N/A";
 
                     htmlBuilder.AppendLine($"              <td>{studentMarks}</td>");
+                    count++;
                 }
 
+                int average = count > 0 ? totalMarks / count : 0;
+                htmlBuilder.AppendLine($"              <td>{totalMarks}</td>");
+                htmlBuilder.AppendLine($"              <td>{average}</td>");
                 htmlBuilder.AppendLine("            </tr>");
+
+                rank++;
             }
 
             htmlBuilder.AppendLine("          </tbody>");
@@ -347,18 +474,9 @@ namespace StudentManagement.Controllers
             return View(marksDetails); // Pass the collection
         }
 
-        public IActionResult MarksEdit(MarksViewModel model)
-        {
-            return View();
-        }
+    
 
-        [HttpGet]
-        public async Task<IActionResult> MarksEdit()
-        {
-            var viewModel = new MarksViewModel();
-            await PopulateDropdowns(viewModel);
-            return View(viewModel);
-        }
+    
 
         [HttpGet]
         public IActionResult MarksEdit(Guid id)
@@ -370,6 +488,7 @@ namespace StudentManagement.Controllers
                 {
                     Id = m.Id,
                     Marks = m.Marks,
+                    Term = m.Term,
                     GradeId = m.GradeId,
                     Grades = _context.Grades.Select(g => new SelectListItem
                     {
@@ -384,12 +503,20 @@ namespace StudentManagement.Controllers
                         Text = $"Class {c.Class}"
                     }).ToList(), // Corrected closing parenthesis and added ToList()
 
-                    SubjectID = m.SubjectID,
+
+                    SubjectID = m.SubjectID, // Ensure Subject is fetched
                     Subjects = _context.Subject.Select(s => new SelectListItem
                     {
                         Value = s.ID.ToString(),
-                        Text = $"{s.Subject}" // Fixed display text
-                    }).ToList() // Added ToList()
+                        Text = $"{s.Subject}"
+                    }).ToList(),
+
+                    UserID = m.UserID,
+                    Users = _context.Users.Select(u => new SelectListItem
+                    {
+                        Value = u.Id.ToString(),
+                        Text = $"{u.FullName}"
+                    }).ToList() // Fetch all users
                 }).FirstOrDefault(); // Ensures you fetch a single record or null if not found
 
             if (marks == null) // Fixed variable name from "subject" to "marks"
@@ -401,6 +528,32 @@ namespace StudentManagement.Controllers
             return View(marks);
         }
 
+        [HttpPost]
+        public IActionResult MarksEdit(MarksViewModel model)
+        {
+
+            foreach (var entry in model.Marks)
+            {
+                var existingMarks = _context.MarksDetail.SingleOrDefault(m => m.Id == model.Id);
+                if (existingMarks == null)
+                {
+                    TempData["ErrorMessage"] = "Record not found.";
+                    return RedirectToAction("MarksAllView");
+                }
+
+               
+                existingMarks.Marks = model.Marks;
+              
+
+                _context.MarksDetail.Update(existingMarks);
+                _context.SaveChanges();
+            }
+
+                return RedirectToAction("MarksAllView");
+        }
+
+
+       
     }
 
 

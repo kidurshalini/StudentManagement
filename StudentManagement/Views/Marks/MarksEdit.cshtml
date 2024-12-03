@@ -3,7 +3,7 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
 
 @{
-    ViewData["Title"] = "Marks Form";
+    ViewData["Title"] = "Marks Update Form";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -37,69 +37,87 @@
 
                 <!-- Form Card with New Design -->
                 <div class="card shadow rounded-3 border-0" style="width:600px; margin-left:300px;">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4 class="mb-0"> Enter the Marks</h4>
+                    <div class="card-header bg-warning text-dark text-center">
+                        <h4 class="mb-0"> Update Marks</h4>
                     </div>
                     <div class="card-body">
-                        <form asp-controller="Marks" asp-action="MarksFormSubmit" method="post">
+                        <form asp-controller="Marks" asp-action="MarksEdit" method="post">
+
+                            <input asp-for="Id" type="hidden" />
                             <div class="row">
                                 <div class="col-md-6">
                                     <label asp-for="GradeId" class="form-label fw-bold">Grade</label>
-                                    <select asp-for="GradeId" class="form-select" id="GradeId">
+                                    <select asp-for="GradeId" class="form-select" id="GradeId" >
                                         <option value="">-- Select Grade --</option>
                                         @if (Model.Grades != null)
                                         {
                                             @foreach (var grade in Model.Grades)
                                             {
-                                                <option value="@grade.Value">@grade.Text</option>
+                                                <option value="@grade.Value" >@grade.Text</option>
                                             }
                                         }
                                     </select>
-                                    <span asp-validation-for="GradeId" class="text-danger"></span>
+                                  
                                 </div>
                                 <div class="col-md-6">
                                     <label asp-for="ClassId" class="form-label fw-bold">Class</label>
-                                    <select asp-for="ClassId" class="form-select" id="ClassId">
+                                    <select asp-for="ClassId" class="form-select" id="ClassId" >
                                         <option value="">-- Select Class --</option>
                                         @if (Model.Classes != null)
                                         {
                                             @foreach (var classItem in Model.Classes)
                                             {
-                                                <option value="@classItem.Value">@classItem.Text</option>
+                                                <option value="@classItem.Value" >@classItem.Text</option>
                                             }
                                         }
                                     </select>
-                                    <span asp-validation-for="ClassId" class="text-danger"></span>
+                                 
                                 </div>
+
+
                                 <div class="col-md-6">
                                     <label asp-for="UserID" class="form-label fw-bold mt-2">Student</label>
-                                    <select asp-for="UserID" class="form-select" id="UserID">
+                                    <select asp-for="UserID" class="form-select" id="UserID" >
                                         <option value="">-- Select Student --</option>
                                         @if (Model.Users != null)
                                         {
                                             @foreach (var Useritem in Model.Users)
                                             {
-                                                <option value="@Useritem.Value">@Useritem.Text</option>
+                                                <option value="@Useritem.Value" >@Useritem.Text</option>
                                             }
                                         }
                                     </select>
-                                    <span asp-validation-for="UserID" class="text-danger"></span>
+                                
                                 </div>
+
                                 <div class="col-md-6">
-                                    <label asp-for="Term" class="form-label fw-bold mt-2">Term</label>
-                                    <input asp-for="Term" class="form-control" placeholder="Enter The Term" />
-                                    <span asp-validation-for="Term" class="text-danger"></span>
-                                </div>
-                                <div class="col-md-6">
-                                    <label asp-for="Subject" class="form-label fw-bold mt-2">Subject</label>
-                                    <input asp-for="Subject" class="form-control" placeholder="Emter The Marks" />
+                                    <label asp-for="Term" class="form-label fw-bold mt-2" >Term</label>
+                                    <input asp-for="Term" class="form-control"  />
                                     <span asp-validation-for="Term" class="text-danger"></span>
                                 </div>
 
+                                <div class="col-md-6">
+                                <label asp-for="SubjectID" class="form-label fw-bold mt-2">Subject</label>
+                                    <select asp-for="SubjectID" class="form-select"  >
+                                    <option value="">-- Select Subject --</option>
+                                    @foreach (var subject in Model.Subjects)
+                                    {
+                                        <option value="@subject.Value" >@subject.Text</option>
+                                    }
+                                </select>
+                               </div>
+
+                                <div class="col-md-6">
+                                    <label asp-for="Marks" class="form-label fw-bold mt-2">Marks</label>
+                                    <input asp-for="Marks" class="form-control" />
+                                    <span asp-validation-for="Marks" class="text-danger"></span>
+                                </div>
+
+                             
                             </div>
                             <div class="d-flex justify-content-center mt-4">
-                                <button type="submit" class="btn btn-success me-2">Submit</button>
-                                <button type="reset" class="btn btn-secondary">Reset</button>
+                                <button type="submit" class="btn btn-warning me-2">Update Marks</button>
+                                
                             </div>
                         </form>
                     </div>
@@ -178,7 +196,13 @@
     });
 
 </script>
-
+<script>
+    $(document).ready(function () {
+        // Disable all fields except the Marks field
+        $('form input, form select').prop('disabled', true);  // Disable all form fields
+        $('#Marks').prop('disabled', false);  // Enable the Marks field
+    });
+</script>
 @* <script>
     $(document).ready(function () {
         $('#loadSubjectBtn').click(function (e) {

@@ -626,7 +626,14 @@ namespace StudentManagement.Controllers
             return View(model);
         }
 
+        public IActionResult classback()
+        {
+            return RedirectToAction("ClassView");
+        }
 
-
+        public IActionResult subjectback()
+        {
+            return RedirectToAction("ViewSubject");
+        }
     }
 }
