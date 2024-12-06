@@ -1,16 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using NReco.PdfGenerator;
 using StudentManagement.Models;
 using StudentManagement.ViewModel;
-using System;
-using System.Diagnostics;
-using System.Linq;
-using System.Reflection.PortableExecutable;
 using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using DinkToPdf;
+using DinkToPdf.Contracts;
+using System;
+
 
 namespace StudentManagement.Controllers
 {
@@ -125,6 +123,7 @@ namespace StudentManagement.Controllers
             if (gradeId == Guid.Empty)
             {
                 return RedirectToAction("MarksForm");
+              
             }
 
             var subjects = _context.Subject
@@ -176,7 +175,7 @@ namespace StudentManagement.Controllers
             {
                 TempData["ErrorMessage"] = "In this Term User already been entered.";
 
-                return View("MarksForm",model);
+                return RedirectToAction("MarksForm");
             }
 
 
@@ -432,7 +431,9 @@ namespace StudentManagement.Controllers
 
             htmlBuilder.AppendLine("          </tbody>");
             htmlBuilder.AppendLine("        </table>");
+            htmlBuilder.AppendLine($"<a href=\"/Marks/DownloadMarksheet?gradeId={gradeId}&classId={classId}&term={term}\" class=\"btn btn-sm btn-primary me-2\">Download</a>");
             htmlBuilder.AppendLine("      </div>");
+          
             htmlBuilder.AppendLine("    </div>");
             htmlBuilder.AppendLine("  </div>");
             htmlBuilder.AppendLine("</div>");
@@ -553,7 +554,138 @@ namespace StudentManagement.Controllers
         }
 
 
-       
+
+        public async Task<IActionResult> DownloadMarksheetAsync(Guid gradeId, Guid classId, string term)
+        {
+            if (gradeId == Guid.Empty || classId == Guid.Empty || string.IsNullOrEmpty(term))
+            {
+                return RedirectToAction("MarksForm");
+            }
+
+            var subjects = _context.Subject
+                .Where(s => s.GradeId == gradeId)
+                .Select(s => new { s.ID, s.Subject })
+                .ToList();
+
+            var gradeName = _context.Grades
+                .Where(g => g.ID == gradeId)
+                .Select(g => g.Grade.ToString())
+                .FirstOrDefault() ?? "Unknown Grade";
+
+            var marks = _context.MarksDetail
+                .Where(m => m.GradeId == gradeId && m.ClassId == classId && m.Term == term)
+                .ToList();
+
+            var htmlBuilder = new StringBuilder();
+
+            htmlBuilder.AppendLine("<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css'>");
+            htmlBuilder.AppendLine("<div class='container mt-4'>");
+            htmlBuilder.AppendLine("  <div class='card shadow-sm'>");
+            htmlBuilder.AppendLine("    <div class='card-header text-white bg-secondary'>");
+            htmlBuilder.AppendLine($"      <h2 class='mb-3 text-center'>Marksheet for Grade {gradeName} - {term}</h2>");
+            htmlBuilder.AppendLine("    </div>");
+            htmlBuilder.AppendLine("    <div class='card-body'>");
+            htmlBuilder.AppendLine("      <div class='table-responsive'>");
+            htmlBuilder.AppendLine("        <table class='table table-hover text-center table-bordered'>");
+            htmlBuilder.AppendLine("          <thead class= 'table-secondary'>");
+            htmlBuilder.AppendLine("            <tr>");
+            htmlBuilder.AppendLine("              <th>Rank</th>");
+            htmlBuilder.AppendLine("              <th>Student</th>");
+
+            foreach (var subject in subjects)
+            {
+                htmlBuilder.AppendLine($"              <th>{subject.Subject}</th>");
+            }
+
+            htmlBuilder.AppendLine("              <th>Total</th>");
+            htmlBuilder.AppendLine("              <th>Average</th>");
+            htmlBuilder.AppendLine("            </tr>");
+            htmlBuilder.AppendLine("          </thead>");
+            htmlBuilder.AppendLine("          <tbody>");
+
+            var studentTotals = marks
+                .GroupBy(m => m.UserID)
+                .Select(g => new
+                {
+                    UserID = g.Key,
+                    TotalMarks = g.Sum(m => int.TryParse(m.Marks, out int marks) ? marks : 0),
+                    Marks = g.ToList()
+                })
+                .OrderByDescending(x => x.TotalMarks)
+                .ToList();
+
+            int rank = 1;
+            foreach (var student in studentTotals)
+            {
+                var studentName = _context.Users
+                    .Where(r => r.Id == student.UserID)
+                    .Select(r => r.FullName)
+                    .FirstOrDefault() ?? "Unknown Student";
+
+                htmlBuilder.AppendLine("            <tr>");
+                htmlBuilder.AppendLine($"              <td>{rank}</td>");
+                htmlBuilder.AppendLine($"              <td>{studentName}</td>");
+
+                int totalMarks = student.TotalMarks;
+                int count = 0;
+
+                foreach (var subject in subjects)
+                {
+                    var studentMarks = student.Marks
+                        .FirstOrDefault(m => m.SubjectID == subject.ID)?.Marks ?? "N/A";
+
+                    htmlBuilder.AppendLine($"              <td>{studentMarks}</td>");
+                    count++;
+                }
+
+                int average = count > 0 ? totalMarks / count : 0;
+                htmlBuilder.AppendLine($"              <td>{totalMarks}</td>");
+                htmlBuilder.AppendLine($"              <td>{average}</td>");
+                htmlBuilder.AppendLine("            </tr>");
+
+                rank++;
+            }
+
+            htmlBuilder.AppendLine("          </tbody>");
+            htmlBuilder.AppendLine("        </table>");
+            htmlBuilder.AppendLine("      </div>");
+            htmlBuilder.AppendLine("    </div>");
+            htmlBuilder.AppendLine("  </div>");
+            htmlBuilder.AppendLine("</div>");
+
+            // Convert the HTML to PDF
+            var pdf = await ConvertHtmlToPdfAsync(htmlBuilder.ToString());
+            return File(pdf, "application/pdf", "Marksheet.pdf");
+
+        }
+        private static readonly SynchronizedConverter _converter = new SynchronizedConverter(new PdfTools());
+        private async Task<byte[]> ConvertHtmlToPdfAsync(string html)
+        {
+            return await Task.Run(() =>
+            {
+                var doc = new HtmlToPdfDocument
+                {
+                    GlobalSettings = new GlobalSettings
+                    {
+                        PaperSize = PaperKind.A4,
+                        Orientation = Orientation.Landscape,
+                    },
+                    Objects = {
+                new ObjectSettings
+                {
+                    HtmlContent = html,
+                    WebSettings = {
+                        DefaultEncoding = "utf-8",
+                        UserStyleSheet = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/css/bootstrap.min.css")
+                    }
+                }
+            }
+                };
+
+                return _converter.Convert(doc);
+            });
+        }
+
     }
 
 

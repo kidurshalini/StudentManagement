@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using Microsoft.AspNetCore.Http;
 
 namespace StudentManagement.Controllers
 {
@@ -122,7 +123,7 @@ namespace StudentManagement.Controllers
 
         //        if (result.Succeeded)
         //        {
-        //            return RedirectToAction("Index", "Home");
+        //            return RedirectToAction("AdminHome", "Home");
         //        }
         //        else
         //        {
@@ -152,13 +153,44 @@ namespace StudentManagement.Controllers
 
                 if (user != null)
                 {
+                    // Check the role of the user.
+                    var roles = await _userManager.GetRolesAsync(user);
+                    bool isStudent = roles.Contains("STUDENT");
+
                     // Store user details in session
                     HttpContext.Session.SetString("UserId", user.Id);
                     HttpContext.Session.SetString("UserEmail", user.Email);
-                    HttpContext.Session.SetString("FullName", user.FullName); // Assuming `FullName` exists in `RegistrationModel`.
+                    HttpContext.Session.SetString("FullName", user.FullName);
+                    HttpContext.Session.SetString("BirthOfDate", user.DateOfBirth.ToString("o")); // Using "o" for round-trip format
+                    HttpContext.Session.SetString("Age", user.Age.ToString());
+                    HttpContext.Session.SetString("Address", user.Address);
+                    HttpContext.Session.SetString("PhoneNumber", user.PhoneNumber ?? string.Empty);
+              
+                    HttpContext.Session.SetString("Gender", user.gender);
+
+                    if (isStudent)
+                    {
+                        HttpContext.Session.SetString("Gardian", user.GardianName);
+                        // Assuming ClassRegistrationModel links the user to Grade and Class
+                        var classRegistration = await _context.UserAcadamic
+                    .Include(cr => cr.Grades) // Navigation property for Grade
+                    .Include(cr => cr.Class)  // Navigation property for Class
+                    .FirstOrDefaultAsync(cr => cr.UserID == user.Id);
+
+                        if (classRegistration != null)
+                        {
+                            HttpContext.Session.SetString("Grade", classRegistration?.Grades?.Grade.ToString() ?? "N/A");
+                            HttpContext.Session.SetString("Class", classRegistration?.Class?.Class ?? "N/A");
+
+                        }
+                        else
+                        {
+                            _logger.LogWarning($"No academic data found for UserID: {user.Id}");
+                        }
+                    }
 
                     // Redirect to the desired page (e.g., Home or Dashboard).
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("AdminHome", "Home");
                 }
 
                 // Handle the unlikely case where user is null.
@@ -171,7 +203,7 @@ namespace StudentManagement.Controllers
             }
             else if (result.RequiresTwoFactor)
             {
-                return RedirectToAction("SendCode", new { ReturnUrl = Url.Action("Index", "Home"), RememberMe = model.RememberMe });
+                return RedirectToAction("SendCode", new { ReturnUrl = Url.Action("AdminHome", "Home"), RememberMe = model.RememberMe });
             }
             else
             {
@@ -370,27 +402,37 @@ namespace StudentManagement.Controllers
             return RedirectToAction("Login", "Account");
         }
 
-        [HttpGet]
-        public async Task<IActionResult> TeacherView()
-        {
-            var teacherRole = "Teacher";
-            var teachers = await _userManager.GetUsersInRoleAsync(teacherRole);
+		[HttpGet]
+		public async Task<IActionResult> TeacherView(string searchQuery)
+		{
+			var teacherRole = "Teacher";
+			var teachers = await _userManager.GetUsersInRoleAsync(teacherRole);
 
-            var teacherViewModels = teachers.Select(user => new RegistrationViewModel
-            {
-                ID = Guid.TryParse(user.Id, out var guidId) ? guidId : Guid.Empty,
-                Email = user.Email,
-                FullName = user.FullName,
-                gender = user.gender,
-                PhoneNumber = user.PhoneNumber,
-                Address = user.Address,
-                DateOfBirth = user.DateOfBirth
+			// Filter teachers based on the search query if provided
+			if (!string.IsNullOrEmpty(searchQuery))
+			{
+				teachers = teachers.Where(user =>
+					(!string.IsNullOrEmpty(user.FullName) && user.FullName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+					(!string.IsNullOrEmpty(user.Email) && user.Email.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+					(!string.IsNullOrEmpty(user.GardianName) && user.GardianName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+					(!string.IsNullOrEmpty(user.Address) && user.Address.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+				).ToList();
+			}
 
+			var teacherViewModels = teachers.Select(user => new RegistrationViewModel
+			{
+				ID = Guid.TryParse(user.Id, out var guidId) ? guidId : Guid.Empty,
+				Email = user.Email,
+				FullName = user.FullName,
+				gender = user.gender,
+				PhoneNumber = user.PhoneNumber,
+				Address = user.Address,
+				DateOfBirth = user.DateOfBirth
+			}).ToList();
 
-            }).ToList();
+			return View(teacherViewModels);
+		}
 
-            return View(teacherViewModels);
-        }
 
 		//[HttpGet]
 		//public async Task<IActionResult> StudentView()
@@ -447,12 +489,23 @@ namespace StudentManagement.Controllers
 		//}
 
 		[HttpGet]
-		public async Task<IActionResult> StudentView()
+		public async Task<IActionResult> StudentView(string searchQuery)
 		{
 			var studentRole = "Student";
 
 			// Get all students in the "Student" role
 			var students = await _userManager.GetUsersInRoleAsync(studentRole);
+
+			// Filter students based on the search query if provided
+			if (!string.IsNullOrEmpty(searchQuery))
+			{
+				students = students.Where(user =>
+					(!string.IsNullOrEmpty(user.FullName) && user.FullName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+					(!string.IsNullOrEmpty(user.Email) && user.Email.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+					(!string.IsNullOrEmpty(user.GardianName) && user.GardianName.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) ||
+					(!string.IsNullOrEmpty(user.Address) && user.Address.Contains(searchQuery, StringComparison.OrdinalIgnoreCase))
+				).ToList();
+			}
 
 			// Fetch ClassRegistration details for these students
 			var studentIds = students.Select(s => s.Id).ToList();
@@ -465,20 +518,18 @@ namespace StudentManagement.Controllers
 			// Map the data into ViewModels
 			var studentViewModels = students.Select(user =>
 			{
-				// Find the class registration details for the current user
 				var classRegistration = classRegistrations.FirstOrDefault(cr => cr.UserID == user.Id);
 
 				return new RegistrationViewModel
 				{
 					ID = Guid.TryParse(user.Id, out var studentId) ? studentId : Guid.Empty,
-
 					Email = user.Email,
 					FullName = user.FullName,
 					gender = user.gender,
 					PhoneNumber = user.PhoneNumber,
 					Address = user.Address,
 					DateOfBirth = user.DateOfBirth,
-                    GardianName = user.GardianName,
+					GardianName = user.GardianName,
 					Grades = new List<SelectListItem>
 			{
 				new SelectListItem
@@ -495,13 +546,15 @@ namespace StudentManagement.Controllers
 					Text = classRegistration?.Class?.Class ?? "N/A"
 				}
 			},
-					GradeId = classRegistration?.GradeId ?? Guid.Empty,  // Set GradeId
-					ClassId = classRegistration?.ClassId ?? Guid.Empty   // Set ClassId
+					GradeId = classRegistration?.GradeId ?? Guid.Empty,
+					ClassId = classRegistration?.ClassId ?? Guid.Empty
 				};
 			}).ToList();
 
 			return View(studentViewModels);
 		}
+
+
 
 		[HttpGet]
 		public IActionResult TeacherEdit(string id)
@@ -849,6 +902,47 @@ namespace StudentManagement.Controllers
         {
             return RedirectToAction("studentview");
         }
+
+
+            public IActionResult Profile()
+            {
+         
+            // Retrieve session values
+            var userId = HttpContext.Session.GetString("UserId");
+            var email = HttpContext.Session.GetString("UserEmail");
+            var fullName = HttpContext.Session.GetString("FullName");
+            var BirthOfDate = HttpContext.Session.GetString("BirthOfDate"); // Using "o" for round-trip format
+            var Age= HttpContext.Session.GetString("Age");
+            var Address = HttpContext.Session.GetString("Address");
+            var Phonenumber = HttpContext.Session.GetString("PhoneNumber");
+            var Guardian =HttpContext.Session.GetString("Gardian");
+            var Gender = HttpContext.Session.GetString("Gender");
+            var Grade = HttpContext.Session.GetString("Grade"); // Replace `Name` with the actual grade property
+            var Class = HttpContext.Session.GetString("Class"); // Replace `Name` with the actual class property
+            // Create a view model or pass values directly
+            var profileViewModel = new ProfileViewModel
+            {
+                UserId = userId,
+                Email = email,
+                FullName = fullName,
+                BirthOfDate = BirthOfDate,
+                Age = Age,
+                Address = Address,
+                Phonenumber = Phonenumber,
+                Guardian=Guardian,
+                Gender = Gender,
+                Grade= Grade,
+                Class = Class
+
+
+            };
+
+
+                return View(profileViewModel);
+            }
+
+
+        
     }
 
 }

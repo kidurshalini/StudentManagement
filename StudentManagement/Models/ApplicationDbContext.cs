@@ -78,6 +78,11 @@ namespace StudentManagement.Models
            .HasForeignKey(c => c.ClassId)
            .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<contactModel>()
+      .HasOne(cr => cr.Registration)
+      .WithMany()
+      .HasForeignKey(cr => cr.UserID)
+      .OnDelete(DeleteBehavior.Restrict);
         }
 
 
@@ -89,6 +94,8 @@ namespace StudentManagement.Models
 
         public DbSet<ClassRegistrationModel> UserAcadamic { get; set; }
         public DbSet<MarksModel> MarksDetail { get; set; }
+        public DbSet<contactModel> contactModel { get; set; }
+
 
     }
 }

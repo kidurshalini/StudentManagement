@@ -1,7 +1,7 @@
 ﻿
 
 .login-container {
-    margin-left: 450px;
+    margin-right: 0 ;
     background-color: #fff;
     padding: 2rem;
     border-radius: 8px;
@@ -82,7 +82,7 @@
 }
 
 .bodystyle {
-    background-color: #4A90E2;
+    background-color: #417dc1;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -110,5 +110,5 @@
 }
 
 .card-custom {
-    background-color: #b0c4de;
+    background-color:#4682b4;
 }

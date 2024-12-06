@@ -1,0 +1,366 @@
+﻿@model StudentManagement.ViewModel.ContactViewModel
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.0/font/bootstrap-icons.css" rel="stylesheet">
+
+@{
+    ViewData["Title"] = "Class Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+    .card-body {
+        color: black;
+        border-radius: 15px;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+        .card-body:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+    .bg-blue-1 {
+        background-color: #e3f2fd;
+    }
+
+    .bg-blue-2 {
+        background-color: #bbdefb;
+    }
+
+    .bg-blue-3 {
+        background-color: #e3f2fd;
+    }
+
+    .bg-blue-4 {
+        background-color: #bbdefb;
+    }
+
+    #gradeChart {
+        max-width: 600px;
+        max-height: 400px;
+        width: 100%;
+        height: auto;
+        margin: 0 auto; /* Center the chart */
+    }
+
+
+
+</style>
+@{
+    var successMessage = TempData["SuccessMessage"] as string;
+    var errorMessage = TempData["ErrorMessage"] as string;
+}
+
+<div class="container my-5">
+    <div class="text-center mb-4">
+        <h1 class="fw-bold display-4">Welcome to the School Management System</h1>
+        <p class="lead text-muted">Get an overview of your classes, teachers, students, and subjects.</p>
+    </div>
+
+    <!-- Card Section -->
+    <div class="row text-center g-4">
+        <!-- Total Students -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body bg-blue-1">
+                    <i class="bi bi-person-circle display-4 text-black"></i>
+                    <h5 class="card-title mt-3">Total Students</h5>
+                    <p class="card-text fs-4 fw-bold">@ViewBag.TotalStudents</p>
+                </div>
+            </div>
+        </div>
+        <!-- Total Teachers -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body bg-blue-2">
+                    <i class="bi bi-person-check display-4 text-black"></i>
+                    <h5 class="card-title mt-3">Total Teachers</h5>
+                    <p class="card-text fs-4 fw-bold">@ViewBag.TotalTeacher</p>
+                </div>
+            </div>
+        </div>
+        <!-- Total Subjects -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body bg-blue-3">
+                    <i class="bi bi-book display-4 text-black"></i>
+                    <h5 class="card-title mt-3">Total Subjects</h5>
+                    <p class="card-text fs-4 fw-bold">@ViewBag.TotalSubjects</p>
+                </div>
+            </div>
+        </div>
+        <!-- Total Classes -->
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm">
+                <div class="card-body bg-blue-4">
+                    <i class="bi bi-building display-4 text-black"></i>
+                    <h5 class="card-title mt-3">Total Classes</h5>
+                    <p class="card-text fs-4 fw-bold">@ViewBag.TotalClasses</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center align-items-stretch mt-5" style="gap: 2rem;">
+        @if (User.IsInRole(StudentManagement.Common.CustomRole.Teacher) || User.IsInRole(StudentManagement.Common.CustomRole.Admin))
+        {
+            <!-- Bar Chart Section -->
+            <div class="bar-chart-section flex-grow-1 d-flex flex-column" style="max-width: 48%; background-color: #e3f2fd; border-radius: 8px; padding: 1rem; height: 400px;">
+                <h3 class="text-center fw-bold display-6">Student Details by Grade</h3>
+                <p class="text-center text-muted mb-2">Visualizing student distribution across grades!</p>
+                <div class="chart-container flex-grow-1 d-flex justify-content-center align-items-center">
+                    <canvas id="gradeChart"></canvas>
+                </div>
+            </div>
+        }
+         @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
+        {
+        <!-- Notification Section (Smaller Size) -->
+        <div class="notification-section flex-grow-1 d-flex flex-column" style="max-width: 48%; background-color:  #e3f2fd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 1rem;">
+            <h3 class="text-center fw-bold display-6 text-dark">Notifications</h3>
+            <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;" id="notificationBox">
+                @if (ViewBag.ContactNotifications != null && ViewBag.ContactNotifications.Count > 0)
+                {
+                    foreach (var notification in ViewBag.ContactNotifications)
+                    {
+                        <div class="alert alert-light border border-primary rounded mb-3">
+                            <h6 class="alert-heading">
+                                <span class="text-dark me-2">@notification.UserName</span>
+                                <span class="text-dark me-2">(@notification.UserEmail)</span>
+                            </h6>
+                            <p class="mb-2">@notification.Message</p>
+                            <small class="text-muted">Received on: @notification.CreatedAt</small>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <div class="alert alert-secondary text-center">
+                        <p class="mb-0">No new notifications</p>
+                    </div>
+                }
+            </div>
+        </div>
+   
+        }
+    <!-- Scroll to Top Button -->
+    <button class="btn btn-primary position-fixed bottom-0 end-0 m-3" id="scrollToTopBtn" style="display: none;">
+        <i class="bi bi-arrow-up"></i> <!-- Bootstrap Icons -->
+    </button>
+
+        @if (User.IsInRole(StudentManagement.Common.CustomRole.Teacher) || User.IsInRole(StudentManagement.Common.CustomRole.Student))
+        {
+            <div class="feedback-section flex-grow-1 d-flex flex-column"
+                 style="max-width: 48%; background-color: #e3f2fd; border-radius: 8px; padding: 1rem; min-height: 500px;">
+
+                <h3 class="text-center fw-bold text-dark display-6">We Value Your Feedback</h3>
+                <p class="text-center text-muted mb-2">Please let us know your thoughts, concerns, or suggestions!</p>
+
+                <div class="p-3 flex-grow-1 d-flex flex-column justify-content-start">
+                    <!-- Alert Container -->
+                    <div class="alert-container">
+                        @if (!string.IsNullOrEmpty(successMessage))
+                        {
+                            <div class="alert alert-success alert-dismissible fade show custom-alert" role="alert">
+                                <i class="bi bi-check-circle-fill me-2"></i><strong>Success!</strong> @successMessage
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+
+                        @if (!string.IsNullOrEmpty(errorMessage))
+                        {
+                            <div class="alert alert-danger alert-dismissible fade show custom-alert" role="alert">
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Error!</strong> @errorMessage
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Feedback Form -->
+                    <form asp-controller="Home" asp-action="SubmitFeedback" method="post" class="needs-validation mt-3" novalidate>
+                        <!-- Message Field -->
+                        <div class="mb-3">
+                            <label asp-for="Message" class="form-label fw-semibold text-dark">Your Message</label>
+                            <textarea class="form-control shadow-sm" id="message" name="Message" rows="5"
+                                      placeholder="Share your feedback or concerns here..." required
+                                      style="border: 2px solid #d1d9e6; border-radius: 10px; resize: none;"></textarea>
+                            <div class="invalid-feedback">Message cannot be empty.</div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="text-center">
+                            <button type="submit" class="btn bg-primary px-4 py-2 fw-bold text-white"
+                                    style="border: none; border-radius: 8px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+                                <i class="bi bi-send-fill"></i> Submit
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+          
+
+        }
+        @{
+            var userMarks = ViewBag.UserMarks as IEnumerable<dynamic>;
+            var alertMessage = ViewBag.AlertMessage as string;
+        }
+            @if (User.IsInRole(StudentManagement.Common.CustomRole.Student))
+        {
+           
+
+    <div class="bar-chart-section flex-grow-1 d-flex flex-column" style="max-width: 48%; background-color: #e3f2fd; border-radius: 8px; padding: 1rem; height: auto;">
+        <h3 class="text-center fw-bold text-dark display-6">Your Marks</h3>
+        <p class="text-center text-muted mb-3">Review your performance here!</p>
+
+        @if (!string.IsNullOrEmpty(alertMessage))
+        {
+            <div class="alert alert-dismissible fade show mt-3 bg-danger text-white" role="alert">
+                <i class="bi bi-info-circle me-2" style="font-size: 1.2rem;"></i> 
+                <strong>@alertMessage</strong>
+              
+            </div>
+        }
+
+        @if (userMarks != null && userMarks.Any())
+        {
+                    <div class="table-responsive mt-4">
+                        <table class="table table-bordered table-hover text-center">
+                            <thead class="table-primary text-dark">
+                                <tr>
+                                    <th>Subject</th>
+                                    <th>Marks</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var mark in userMarks)
+                                {
+                                    <tr class="table-light">
+                                        <td>@mark.Subject</td>
+                                        <td>@mark.Marks</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+        }
+        else
+        {
+            <p class="text-muted mt-3">No marks available to display.</p>
+        }
+    </div>
+
+        }
+
+    </div>
+        @if (User.IsInRole(StudentManagement.Common.CustomRole.Teacher) || User.IsInRole(StudentManagement.Common.CustomRole.Student))
+        {
+    <div class="text-center mt-5" style="background-color: #f8f9fa; padding: 1.5rem; border-top: 1px solid #dee2e6;">
+
+        <div class="d-flex justify-content-center align-items-center flex-column">
+            <p class="mb-1">
+                <i class="bi bi-telephone text-primary me-2"></i>
+                <span class="fw-bold text-dark">081-145-15623</span>
+            </p>
+            <p class="mb-0">
+                <i class="bi bi-envelope text-primary me-2"></i>
+                <span class="fw-bold text-dark">admin@SheffieldInternationalSchoolManagement.com</span>
+            </p>
+        </div>
+    </div>
+        }
+   
+</div>
+      
+
+
+<!-- Chart.js Script -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Parse the grade data from ViewBag
+        var gradeData = JSON.parse('@Html.Raw(ViewBag.GradeData)');
+
+        // Extract labels (grades) and data (student counts)
+        var labels = gradeData.map(item => item.GradeName);
+        var counts = gradeData.map(item => item.StudentCount);
+
+        var ctx = document.getElementById('gradeChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels, // X-axis will show grades
+                datasets: [{
+                    label: 'Number of Students',
+                    data: counts, // Y-axis will show student counts
+                    backgroundColor: [
+                        '#779ecb',
+                     
+                    ],
+                  
+                 
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        labels: {
+                            color: '#333',
+                            font: {
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        title: {
+                            display: true,
+                            text: 'Grade',
+                            color: '#000036',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        ticks: {
+                            color: '#555',
+                            font: {
+                                size: 12
+                            }
+                        }
+                    },
+                    y: {
+                        title: {
+                            display: true,
+                            text: 'Number of Students',
+                            color: '#000036',
+                            font: {
+                                size: 14,
+                                weight: 'bold'
+                            }
+                        },
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 5, // Set increment steps
+                            color: '#555',
+                            font: {
+                                size: 12,
+                                weight: 'bold'
+                            }
+                        },
+                        grid: {
+                            color: 'rgba(200, 200, 200, 0.3)',
+                            borderDash: [5, 5]
+                        }
+                    }
+                }
+            }
+        });
+    });
+
+</script>

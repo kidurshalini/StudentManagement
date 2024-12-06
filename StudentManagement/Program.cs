@@ -85,6 +85,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc.Authorization;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using System.Data;
+using Microsoft.AspNetCore.Identity.UI.V4.Pages.Account.Internal;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -116,10 +117,12 @@ builder.Services.ConfigureApplicationCookie(options =>
 // Add session services with configuration
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout to 30 minutes
+    options.IdleTimeout = TimeSpan.FromMinutes(180); 
     options.Cookie.HttpOnly = true;                // Prevent client-side script access
     options.Cookie.IsEssential = true;             // Ensure the session cookie is always set
 });
+
+
 
 // Add MVC with controllers and Razor Pages
 builder.Services.AddControllersWithViews();

@@ -1,5 +1,4 @@
 ﻿
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -14,10 +13,11 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm border-bottom box-shadow mb-3 navbar-custom">
             <div class="container-fluid">
-                <div style="text-align: center;">
-                    <img src="~/Image/icon4.png" width="100px" height="100px" alt="Logo" />
-                    <p style="margin: 0; font-weight:bold; font-style:10px; color:white; ">School Management System</p>
-                </div>
+  <div style="display: flex; align-items: center; justify-content: center; color: lemonchiffon;">
+    <img src="~/Image/icon4.png" width="100px" height="100px" alt="Logo" style="margin-right: 10px;" />
+             <span class="nav-link text-white fs-5" style="white-space: nowrap; font-size: 18px; letter-spacing:normal">School Management</span>
+</div>
+
 
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
                         aria-expanded="false" aria-label="Toggle navigation">
@@ -25,14 +25,14 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-center">
                     <ul class="navbar-nav flex-grow-1 justify-content-center">
+                     
                         <li class="nav-item">
-                            <a class="nav-link text-white nav-link-custom" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-white nav-link-custom" asp-area="" asp-controller="Home" asp-action="AdminHome">Home</a>
                         </li>
-
-                       
-
                         @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
                         {
+                            
+
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     User
@@ -53,6 +53,8 @@
                                             <i class="bi bi-person-workspace"></i> Student Details
                                         </a>
                                     </li>
+                                
+                       
                                 </ul>
                             </li>
                             <li class="nav-item dropdown">
@@ -162,6 +164,29 @@
                                     </li>
                                 </ul>
                             </li>
+                              <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Marks
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                    <li>
+                                        <a class="dropdown-item " asp-area="" asp-controller="Marks" asp-action="MarksForm">
+                                            <i class="bi bi-person-fill"></i> Enter Marks
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a class="dropdown-item " asp-area="" asp-controller="Marks" asp-action="MarksView">
+                                            <i class="bi bi-person-fill"></i> ViewMarks
+                                        </a>
+                                    </li
+                                        <li>
+                                        <a class="dropdown-item " asp-area="" asp-controller="Marks" asp-action="MarksAllView">
+                                            <i class="bi bi-person-fill"></i> All ViewMarks
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+                            
                         }
                         else if (User.IsInRole(StudentManagement.Common.CustomRole.Student))
 
@@ -185,11 +210,25 @@
                                     </li>
                                 </ul>
                             </li>
+                                <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-white nav-link-custom" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    Marks
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end">
+                                   
+                                    <li>
+                                        <a class="dropdown-item " asp-area="" asp-controller="Marks" asp-action="MarksView">
+                                            <i class="bi bi-person-fill"></i> ViewMarks
+                                        </a>
+                                    </li
+                                 
+                                </ul>
+                            </li>
                         }
                     </ul>
                 </div>
             </div>
-
+     
             <partial name="_LoginPartial" />
         </nav>
         <div class="container">

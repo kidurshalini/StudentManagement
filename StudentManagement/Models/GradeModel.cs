@@ -11,6 +11,10 @@ namespace StudentManagement.Models
 
         public ICollection<ClassModel> Class { get; set; }
         public ICollection<SubjectModel> Subject { get; set; }
-        
+
+        internal bool Any(Func<object, bool> value)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

@@ -249,29 +249,39 @@ namespace StudentManagement.Controllers
             return View(model);  // Pass the populated model to the view
         }
 
-        [HttpGet]
-        public IActionResult ClassView()
+  [HttpGet]
+public IActionResult ClassView(string searchQuery)
+{
+    var classDetails = _context.Class
+        .Include(c => c.Grades) // Ensure Grades navigation property is loaded
+        .Select(c => new ClassViewModel
         {
-            var classDetails = _context.Class
-                .Include(c => c.Grades) // Ensure Grades navigation property is loaded
-                .Select(c => new ClassViewModel
-                {
-                    Id = c.Id,
-                    GradeId = c.GradeId,                  // Use GradeId for reference
-                    Class = $"Class {c.Class}",                    
-                    Grades = new List<SelectListItem>    // Use Grade integer for display
-                    {
+            Id = c.Id,
+            GradeId = c.GradeId, // Use GradeId for reference
+            Class = $"Class {c.Class}",
+            Grades = new List<SelectListItem>
+            {
                 new SelectListItem
                 {
-                    Text = $"Grade {c.Grades.Grade}", // Display Grade as "Grade X"
-                    Value = c.GradeId.ToString()     // GradeId as value
+                    // Directly accessing the Grade property from GradeModel
+                    Text = c.Grades != null ? $"Grade {c.Grades.Grade}" : "No Grade", 
+                    Value = c.GradeId.ToString() // GradeId as value
                 }
-                    }
-                })
-                .ToList();
+            }
+        })
+        .ToList();
 
-            return View(classDetails);
-        }
+    // Apply search filter if search query is provided
+    if (!string.IsNullOrEmpty(searchQuery))
+    {
+        classDetails = classDetails.Where(c =>
+            c.Class.Contains(searchQuery, StringComparison.OrdinalIgnoreCase) ||
+            c.Grades.Any(g => g.Text.Contains(searchQuery, StringComparison.OrdinalIgnoreCase)) // Searching in Grade text
+        ).ToList(); // Ensure to call ToList() after filtering
+    }
+
+    return View(classDetails);
+}
 
 
 
