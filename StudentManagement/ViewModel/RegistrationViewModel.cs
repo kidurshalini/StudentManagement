@@ -73,6 +73,6 @@ namespace StudentManagement.ViewModel
         public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Classes { get; set; } = new List<SelectListItem>();
 
-
-    }
+		public int AgeView { get; set; }
+	}
 }

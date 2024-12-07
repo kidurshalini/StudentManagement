@@ -112,35 +112,48 @@ namespace StudentManagement.Controllers
             ViewBag.ContactNotifications = contactMessages;
 
 
-            // Retrieve UserID from the session
             var userId = HttpContext.Session.GetString("UserId");
 
             if (!string.IsNullOrEmpty(userId))
-                {
-                // Fetch user's marks and subjects from the database
-                var userMarks = _context.MarksDetail
-               .Where(m => m.UserID == userId)
-               .Join(_context.Subject, // Join with Subject table
-                     m => m.SubjectID,    // Foreign key in Marks table
-                     s => s.ID,           // Primary key in Subject table
-                     (m, s) => new { s.Subject, m.Marks }) // Select desired fields
-               .ToList();
+            {
+                // Fetch user's latest marks based on the most recent term
+                var latestMarks = _context.MarksDetail
+                    .Where(m => m.UserID == userId)
+                    .OrderByDescending(m => m.CreatedAt) // Assuming CreatedAt is a DateTime property in MarksDetail
+                    .GroupBy(m => m.Term) // Group by term to fetch the latest term's marks
+                    .Select(g => new
+                    {
+                        Term = g.Key,
+                        Marks = g.Join(_context.Subject, // Join with Subject table
+                                       m => m.SubjectID, // Foreign key in Marks table
+                                       s => s.ID,        // Primary key in Subject table
+                                       (m, s) => new { s.Subject, m.Marks }).ToList(),
+                        LastUpdated = g.Max(m => m.CreatedAt) // Get the most recent update time for the term
+                    })
+                    .OrderByDescending(g => g.LastUpdated) // Ensure the latest term comes first
+                    .FirstOrDefault(); // Fetch the latest term's data
 
-                // Pass data to the View using ViewBag or ViewModel
-                ViewBag.UserMarks = userMarks;
-                    ViewBag.AlertMessage = userMarks.Any()
-                        ? "Your Marks Released Now!"
-                        : "No marks found for this user.";
+                if (latestMarks != null)
+                {
+                    ViewBag.Term = latestMarks.Term;
+                    ViewBag.UserMarks = latestMarks.Marks;
+                    ViewBag.LastUpdated = latestMarks.LastUpdated;
+                    ViewBag.AlertMessage = $"Your {latestMarks.Term} marks are now available!";
                 }
                 else
                 {
-                    ViewBag.AlertMessage = "User not found in the session.";
+                    ViewBag.AlertMessage = "No marks found for this user.";
                 }
+            }
+            else
+            {
+                ViewBag.AlertMessage = "User not found in the session.";
+            }
 
             return View();
         }
 
-       public IActionResult SubmitFeedback(ContactViewModel model)
+        public IActionResult SubmitFeedback(ContactViewModel model)
         {
             if (!ModelState.IsValid)
             {

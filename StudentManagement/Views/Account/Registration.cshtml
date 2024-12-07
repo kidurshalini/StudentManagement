@@ -100,9 +100,15 @@
                     </div>
                     <div class="col-md-6">
                         <label asp-for="Password" class="form-label fw-bold">Password</label>
-                        <input asp-for="Password" type="password" class="form-control" />
+                        <div class="input-group">
+                            <input asp-for="Password" id="passwordInput2" type="password" class="form-control" />
+                            <button type="button" class="btn btn-outline-secondary" id="togglePassword2">
+                                <i class="bi bi-eye-fill" id="eyeIcon2"></i>
+                            </button>
+                        </div>
                         <span asp-validation-for="Password" class="text-danger"></span>
                     </div>
+
                 </div>
 
                 <div id="guardianFields" class="row g-3" style="display: none;">
@@ -143,11 +149,17 @@
                         <span asp-validation-for="ClassId" class="text-danger"></span>
                     </div>
                 </div>
+                    <div class="text-center mt-4">
+                        <button type="submit" class="btn btn-success px-4 me-3">
+                            <i class="bi bi-person-plus me-2"></i> <!-- Add Bootstrap Icon for Create Account -->
+                           Add User
+                        </button>
+                        <button type="reset" class="btn btn-secondary px-4 ">
+                                            <i class="bi bi-arrow-counterclockwise me-2"></i>
+                            Clear
+                        </button>
+                    </div>
 
-                <div class="text-center mt-4">
-                    <button type="submit" class="btn btn-success px-4 me-2">Create Account</button>
-                    <button type="reset" class="btn btn-secondary px-4">Clear</button>
-                </div>
             </form>
         </div>
     </div>
@@ -192,5 +204,21 @@
                 }
             });
         });
+    });
+</script>
+<script>
+    document.getElementById('togglePassword2').addEventListener('click', function () {
+        const passwordInput = document.getElementById('passwordInput2');
+        const eyeIcon = document.getElementById('eyeIcon2');
+
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            eyeIcon.classList.remove('bi-eye-fill');
+            eyeIcon.classList.add('bi-eye-slash-fill');
+        } else {
+            passwordInput.type = 'password';
+            eyeIcon.classList.remove('bi-eye-slash-fill');
+            eyeIcon.classList.add('bi-eye-fill');
+        }
     });
 </script>

@@ -88,9 +88,15 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label asp-for="Term" class="form-label fw-bold mt-2">Term</label>
-                                    <input asp-for="Term" class="form-control" placeholder="Enter The Term"/>
+                                    <select asp-for="Term" class="form-control">
+                                        <option value="" disabled selected>Select Term</option>
+                                        <option value="1st Term">1st Term</option>
+                                        <option value="2nd Term">2nd Term</option>
+                                        <option value="3rd Term">3rd Term</option>
+                                    </select>
                                     <span asp-validation-for="Term" class="text-danger"></span>
                                 </div>
+
                                 <!-- Subjects Container -->
                                 <div class="col-md-12 mt-3">
                                     <div id="subjectsContainer">
@@ -99,13 +105,21 @@
                                 </div>
 
                                 <div class="mt-3">
-                                    <a href="javascript:void(0);" id="loadSubjectBtn" class="btn btn-sm btn-warning me-2">Load Subjects</a>
+                                    <a href="javascript:void(0);" id="loadSubjectBtn" class="btn btn-sm btn-warning me-2">
+                                        Load Subjects</a>
                                 </div>
 
                             </div>
-                            <div class="d-flex justify-content-center mt-4">
-                                <button type="submit" class="btn btn-success me-2">Submit</button>
-                                <button type="reset" class="btn btn-secondary">Reset</button>
+
+                            <div class="text-center mt-4">
+                                <button type="submit" class="btn btn-success me-2">
+                                    <i class="bi bi-plus me-2"></i> <!-- Add Bootstrap Icon for Create Account -->
+                                   Add Marks
+                                </button>
+                                <button type="reset" class="btn btn-secondary ">
+                                    <i class="bi bi-arrow-counterclockwise me-2"></i>
+                                    Clear
+                                </button>
                             </div>
                         </form>
                     </div>

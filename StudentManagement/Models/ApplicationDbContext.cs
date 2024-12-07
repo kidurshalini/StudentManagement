@@ -58,7 +58,7 @@ namespace StudentManagement.Models
            .HasOne(cr => cr.Registration)
            .WithMany()
            .HasForeignKey(cr => cr.UserID)
-           .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<MarksModel>()
         .HasOne(s => s.Subject)

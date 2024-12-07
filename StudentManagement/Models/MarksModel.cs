@@ -13,7 +13,8 @@
         public Guid SubjectID { get; set; }
         public SubjectModel Subject { get; set; }
 
-   
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string Marks { get; set; }
 
         public string Term { get; set; }

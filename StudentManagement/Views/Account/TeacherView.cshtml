@@ -44,6 +44,7 @@
 						<th>Phone Number</th>
 						<th>Address</th>
 						<th>Date of Birth</th>
+						<th>Age</th>
 						<th></th>
 					</tr>
 				</thead>
@@ -58,6 +59,7 @@
 							<td>@teacher.PhoneNumber</td>
 							<td>@teacher.Address</td>
 							<td>@teacher.DateOfBirth.ToString("yyyy-MM-dd")</td>
+							<td>@teacher.Age</td>
 							<td>
 								<a asp-controller="Account" asp-action="TeacherEdit" asp-route-id="@teacher.ID" class="btn btn-sm btn-warning me-2">Edit</a>
 								<a asp-controller="Account" asp-action="TeacherDelete" asp-route-id="@teacher.ID" class="btn btn-sm btn-danger">Delete</a>

@@ -116,31 +116,34 @@
          @if (User.IsInRole(StudentManagement.Common.CustomRole.Admin))
         {
         <!-- Notification Section (Smaller Size) -->
-        <div class="notification-section flex-grow-1 d-flex flex-column" style="max-width: 48%; background-color:  #e3f2fd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 1rem;">
-            <h3 class="text-center fw-bold display-6 text-dark">Notifications</h3>
-            <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;" id="notificationBox">
-                @if (ViewBag.ContactNotifications != null && ViewBag.ContactNotifications.Count > 0)
-                {
-                    foreach (var notification in ViewBag.ContactNotifications)
+            <div class="notification-section flex-grow-1 d-flex flex-column" style="max-width: 38%; background-color: #e3f2fd; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); padding: 1rem;">
+                <h3 class="text-center fw-bold display-6 text-dark">Notifications</h3>
+                <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;" id="notificationBox">
+                    @if (ViewBag.ContactNotifications != null && ViewBag.ContactNotifications.Count > 0)
                     {
-                        <div class="alert alert-light border border-primary rounded mb-3">
-                            <h6 class="alert-heading">
-                                <span class="text-dark me-2">@notification.UserName</span>
-                                <span class="text-dark me-2">(@notification.UserEmail)</span>
-                            </h6>
-                            <p class="mb-2">@notification.Message</p>
-                            <small class="text-muted">Received on: @notification.CreatedAt</small>
+                        foreach (var notification in ViewBag.ContactNotifications)
+                        {
+                            <div class="alert alert-light border border-primary rounded mb-3 position-relative" id="notification-@notification.Id">
+                                <button type="button" class="btn-close position-absolute" aria-label="Close" style="top: 10px; right: 10px;"
+                                        onclick="closeNotificationBox('notification-@notification.Id')"></button>
+                                <h6 class="alert-heading">
+                                    <span class="text-dark me-2">@notification.UserName</span>
+                                    <span class="text-dark me-2">(@notification.UserEmail)</span>
+                                </h6>
+                                <p class="mb-2">@notification.Message</p>
+                                <small class="text-muted">Received on: @notification.CreatedAt</small>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div class="alert alert-secondary text-center">
+                            <p class="mb-0">No new notifications</p>
                         </div>
                     }
-                }
-                else
-                {
-                    <div class="alert alert-secondary text-center">
-                        <p class="mb-0">No new notifications</p>
-                    </div>
-                }
+                </div>
             </div>
-        </div>
+
    
         }
     <!-- Scroll to Top Button -->
@@ -207,23 +210,25 @@
         }
             @if (User.IsInRole(StudentManagement.Common.CustomRole.Student))
         {
-           
 
-    <div class="bar-chart-section flex-grow-1 d-flex flex-column" style="max-width: 48%; background-color: #e3f2fd; border-radius: 8px; padding: 1rem; height: auto;">
-        <h3 class="text-center fw-bold text-dark display-6">Your Marks</h3>
-        <p class="text-center text-muted mb-3">Review your performance here!</p>
 
-        @if (!string.IsNullOrEmpty(alertMessage))
-        {
-            <div class="alert alert-dismissible fade show mt-3 bg-danger text-white" role="alert">
-                <i class="bi bi-info-circle me-2" style="font-size: 1.2rem;"></i> 
-                <strong>@alertMessage</strong>
-              
-            </div>
-        }
+            <div class="hart-section flex-grow-1 d-flex flex-column" style="max-width: 48%; background-color: #e3f2fd; border-radius: 8px; padding: 1rem; height: auto;">
+                <h3 class="text-center fw-bold text-dark display-6">Your Marks</h3>
+                <p class="text-center text-muted mb-3">Review your performance here!</p>
 
-        @if (userMarks != null && userMarks.Any())
-        {
+                @if (!string.IsNullOrEmpty(ViewBag.AlertMessage))
+                {
+                    <div class="alert alert-dismissible fade show mt-3 bg-danger text-white" role="alert">
+                        <i class="bi bi-info-circle me-2" style="font-size: 1.2rem;"></i>
+                        <strong>@ViewBag.AlertMessage</strong>
+                    </div>
+                }
+
+                @if (ViewBag.UserMarks != null && ((IEnumerable<dynamic>)ViewBag.UserMarks).Any())
+                {
+                    <p class="text-center text-muted">Term: <strong>@ViewBag.Term</strong></p>
+                    <p class="text-center text-muted">Last Updated: <strong>@ViewBag.LastUpdated</strong></p>
+
                     <div class="table-responsive mt-4">
                         <table class="table table-bordered table-hover text-center">
                             <thead class="table-primary text-dark">
@@ -233,7 +238,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                @foreach (var mark in userMarks)
+                                @foreach (var mark in (IEnumerable<dynamic>)ViewBag.UserMarks)
                                 {
                                     <tr class="table-light">
                                         <td>@mark.Subject</td>
@@ -243,12 +248,12 @@
                             </tbody>
                         </table>
                     </div>
-        }
-        else
-        {
-            <p class="text-muted mt-3">No marks available to display.</p>
-        }
-    </div>
+                }
+                else
+                {
+                    <p class="text-muted mt-3">No marks available to display.</p>
+                }
+            </div>
 
         }
 
@@ -363,4 +368,12 @@
         });
     });
 
+</script>
+<script>
+    function closeNotificationBox(notificationId) {
+        const notificationBox = document.getElementById(notificationId);
+        if (notificationBox) {
+            notificationBox.style.display = 'none'; // Hide the specific notification box
+        }
+    }
 </script>

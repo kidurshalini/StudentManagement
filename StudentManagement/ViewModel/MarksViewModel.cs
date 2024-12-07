@@ -25,15 +25,22 @@ namespace StudentManagement.ViewModel
         [Display(Name = "Class")]
         public Guid ClassId { get; set; }
 
-     
 
+
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public List<SelectListItem> Grades { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Classes { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Users { get; set; } = new List<SelectListItem>();
         public List<SelectListItem> Subjects { get; set; } = new List<SelectListItem>();
         public Dictionary<Guid, string> MarksDetail { get; set; }
+
+
+
+        [Range(0, 100, ErrorMessage = "Marks must be between 0 and 100.")]
         public string Marks { get; set; }
+
+
         public string Term { get; set; }
 
         public GradeModel Grade { get; set; }

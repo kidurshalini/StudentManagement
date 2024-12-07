@@ -431,7 +431,13 @@ namespace StudentManagement.Controllers
 
             htmlBuilder.AppendLine("          </tbody>");
             htmlBuilder.AppendLine("        </table>");
-            htmlBuilder.AppendLine($"<a href=\"/Marks/DownloadMarksheet?gradeId={gradeId}&classId={classId}&term={term}\" class=\"btn btn-sm btn-primary me-2\">Download</a>");
+            htmlBuilder.AppendLine("<div class='text-end mt-3 mb-3'>"); // Align content to the right
+            htmlBuilder.AppendLine($"  <a href=\"/Marks/DownloadMarksheet?gradeId={gradeId}&classId={classId}&term={term}\" class=\"btn btn-primary btn-sm  justify-content-center\">");
+            htmlBuilder.AppendLine("    <i class=\"bi bi-download me-2\"></i>"); // Add a Bootstrap icon for download
+            htmlBuilder.AppendLine("    Download");
+            htmlBuilder.AppendLine("  </a>");
+            htmlBuilder.AppendLine("</div>");
+
             htmlBuilder.AppendLine("      </div>");
           
             htmlBuilder.AppendLine("    </div>");
@@ -443,41 +449,57 @@ namespace StudentManagement.Controllers
 
 
 
-        public IActionResult MarksAllView()
+        public IActionResult MarksAllView(string searchQuery)
         {
-            var marksDetails = _context.MarksDetail
-                .Include(m => m.Registration)     // To load the Registration (User)
-                .Include(m => m.Subject)          // To load the Subject
-                .Include(m => m.Grade)            // To load the Grade
-                .Include(m => m.Class)            // To load the Class
+            var marksDetailsQuery = _context.MarksDetail
+                .Include(m => m.Registration)
+                .Include(m => m.Subject)
+                .Include(m => m.Grade)
+                .Include(m => m.Class)
+                .AsQueryable();
+
+            if (!string.IsNullOrEmpty(searchQuery))
+            {
+                searchQuery = searchQuery.ToLower();
+
+                marksDetailsQuery = marksDetailsQuery.Where(m =>
+                    (!string.IsNullOrEmpty(m.Registration.FullName) &&
+                        m.Registration.FullName.ToLower().Contains(searchQuery)) ||
+                    (!string.IsNullOrEmpty(m.Grade.Grade.ToString()) &&
+                        m.Grade.Grade.ToString().ToLower().Contains(searchQuery)) ||
+                    (!string.IsNullOrEmpty(m.Class.Class) &&
+                        m.Class.Class.ToLower().Contains(searchQuery)) ||
+                    (!string.IsNullOrEmpty(m.Subject.Subject) &&
+                        m.Subject.Subject.ToLower().Contains(searchQuery)) ||
+                    (!string.IsNullOrEmpty(m.Term) &&
+                        m.Term.ToLower().Contains(searchQuery))
+                );
+            }
+
+            var marksDetails = marksDetailsQuery
                 .Select(m => new MarksViewModel
                 {
                     Id = m.Id,
                     UserID = m.UserID,
-                    Registration = m.Registration,  // Ensure Registration (Full Name) is loaded
+                    Registration = m.Registration,
                     SubjectID = m.SubjectID,
-                    Subject = m.Subject,            // Ensure the Subject is loaded
+                    Subject = m.Subject,
                     GradeId = m.GradeId,
                     ClassId = m.ClassId,
                     Term = m.Term,
                     Marks = m.Marks.ToString(),
-                    Grade = m.Grade,                // Load the full Grade entity
-                    Class = m.Class                 // Load the full Class entity
+                    Grade = m.Grade,
+                    Class = m.Class
                 })
-                .ToList(); // Ensure this is a list of MarksViewModel objects
+                .ToList();
 
-            // Handle case where no data is found
-            if (marksDetails == null || !marksDetails.Any())
-            {
-                marksDetails = new List<MarksViewModel>(); // Ensure it's an empty list, not null
-            }
-
-            return View(marksDetails); // Pass the collection
+            return View(marksDetails);
         }
 
-    
 
-    
+
+
+
 
         [HttpGet]
         public IActionResult MarksEdit(Guid id)

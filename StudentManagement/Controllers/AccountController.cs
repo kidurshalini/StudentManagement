@@ -24,19 +24,22 @@ namespace StudentManagement.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AccountController> _logger;
         private readonly ApplicationDbContext _context;
+       private readonly IEmailSender _emailSender;
 
         public AccountController(
          UserManager<RegistrationModel> userManager,
          SignInManager<RegistrationModel> signInManager,
          RoleManager<IdentityRole> roleManager,
          ILogger<AccountController> logger,
-         ApplicationDbContext context)
+         ApplicationDbContext context,
+                   IEmailSender emailSender)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _roleManager = roleManager;
             _logger = logger;
             _context = context;
+           _emailSender = emailSender; 
         }
 
         private async Task PopulateDropdowns(RegistrationViewModel model, Guid? selectedGradeId = null)
@@ -214,25 +217,121 @@ namespace StudentManagement.Controllers
         }
 
 
+        //[HttpPost]
+        //public async Task<IActionResult> Register(RegistrationViewModel model)
+        //{
+        //    if (model == null)
+        //    {
+        //        // This ensures that if the model is null, we return an error.
+        //        return BadRequest("Model is null");
+        //    }
+
+        //    // Check if email already exists
+        //    var existingUser = await _userManager.FindByEmailAsync(model.Email);
+        //    if (existingUser != null)
+        //    {
+        //        ModelState.AddModelError("Email", "Email is already in use.");
+
+        //        return View("Registration", model);
+        //    }
+
+        //    // Create the user object (RegistrationModel)
+        //    var user = new RegistrationModel
+        //    {
+        //        UserName = model.Email,
+        //        Email = model.Email,
+        //        FullName = model.FullName,
+        //        Address = model.Address,
+        //        gender = model.gender,
+        //        DateOfBirth = model.DateOfBirth,
+        //        Age = model.Age,
+        //        PhoneNumber = model.PhoneNumber,
+        //        GardianName = model.GardianName
+        //    };
+
+        //    // Create the user in Identity
+        //    var result = await _userManager.CreateAsync(user, model.Password);
+        //    if (result.Succeeded)
+        //    {
+        //        _logger.LogInformation("User created a new account with password.");
+
+        //        // Assign role to the user
+        //        if (!string.IsNullOrWhiteSpace(model.Role) && await _roleManager.RoleExistsAsync(model.Role))
+        //        {
+        //            var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
+        //            if (!roleResult.Succeeded)
+        //            {
+        //                // Handle any errors in adding to role
+        //                foreach (var error in roleResult.Errors)
+        //                {
+        //                    ModelState.AddModelError(string.Empty, error.Description);
+        //                }
+
+        //                // If role assignment fails, delete the user and return the view
+        //                await _userManager.DeleteAsync(user);
+        //                return View("Registration", model);
+        //            }
+        //        }
+        //        else
+        //        {
+        //            ModelState.AddModelError("", "Selected role does not exist.");
+        //            return View("Registration", model);
+        //        }
+
+        //        // After user creation, check for student role and create class registration
+        //        if (model.Role == "Student")
+        //        {
+        //            user = await _userManager.FindByEmailAsync(user.Email); // Reload user to get the assigned Id
+
+        //            if (user == null)
+        //            {
+        //                // If user is still null, return an error (edge case handling)
+        //                ModelState.AddModelError("", "Error finding user after creation.");
+        //                return View("Registration", model);
+        //            }
+
+        //            // Create the ClassRegistrationModel (academic details)
+        //            var classRegistration = new ClassRegistrationModel
+        //            {
+        //                UserID = user.Id,  // Now user.Id is guaranteed to be assigned
+        //                GradeId = model.GradeId,
+        //                ClassId = model.ClassId,
+        //            };
+
+        //            // Add the class registration to the database
+        //            await _context.UserAcadamic.AddAsync(classRegistration);
+        //            await _context.SaveChangesAsync(); // Make sure to save the changes to the DB
+        //        }
+
+        //        TempData["SuccessMessage"] = "Registration successful!";
+        //        return RedirectToAction("Registration", "Account");
+        //    }
+
+        //    // If the creation fails, show error messages
+        //    foreach (var error in result.Errors)
+        //    {
+        //        ModelState.AddModelError(string.Empty, error.Description);
+        //    }
+
+        //    TempData["ErrorMessage"] = "Registration failed.";
+        //    return View("Registration", model);
+        //}
+
         [HttpPost]
         public async Task<IActionResult> Register(RegistrationViewModel model)
         {
             if (model == null)
             {
-                // This ensures that if the model is null, we return an error.
                 return BadRequest("Model is null");
             }
 
-            // Check if email already exists
             var existingUser = await _userManager.FindByEmailAsync(model.Email);
             if (existingUser != null)
             {
                 ModelState.AddModelError("Email", "Email is already in use.");
-               
                 return View("Registration", model);
             }
 
-            // Create the user object (RegistrationModel)
             var user = new RegistrationModel
             {
                 UserName = model.Email,
@@ -246,25 +345,21 @@ namespace StudentManagement.Controllers
                 GardianName = model.GardianName
             };
 
-            // Create the user in Identity
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
                 _logger.LogInformation("User created a new account with password.");
 
-                // Assign role to the user
                 if (!string.IsNullOrWhiteSpace(model.Role) && await _roleManager.RoleExistsAsync(model.Role))
                 {
                     var roleResult = await _userManager.AddToRoleAsync(user, model.Role);
                     if (!roleResult.Succeeded)
                     {
-                        // Handle any errors in adding to role
                         foreach (var error in roleResult.Errors)
                         {
                             ModelState.AddModelError(string.Empty, error.Description);
                         }
 
-                        // If role assignment fails, delete the user and return the view
                         await _userManager.DeleteAsync(user);
                         return View("Registration", model);
                     }
@@ -275,7 +370,6 @@ namespace StudentManagement.Controllers
                     return View("Registration", model);
                 }
 
-                // After user creation, check for student role and create class registration
                 if (model.Role == "Student")
                 {
                     user = await _userManager.FindByEmailAsync(user.Email); // Reload user to get the assigned Id
@@ -300,21 +394,38 @@ namespace StudentManagement.Controllers
                     await _context.SaveChangesAsync(); // Make sure to save the changes to the DB
                 }
 
+                // Send email to the user
+                var subject = "Welcome to the Student Management System!";
+                var body = $@"
+            <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                <h2 style='color: #007BFF;'>Welcome to the Student Management System, {user.FullName}!</h2>
+                <p>
+                    We are delighted to inform you that your account has been successfully created. Below are your account details:
+                </p>
+                <ul style='list-style: none; padding: 0;'>
+                    <li><strong>Role:</strong> {model.Role}</li>
+                    <li><strong>Username:</strong> {user.Email}</li>
+                    <li><strong>Password:</strong> <em> {user.Email}{model.Role}1 (Reset your password upon first login)</em></li>
+                </ul>
+                <p>
+                    Please ensure you keep this information safe and confidential. If you have any questions or require assistance, do not hesitate to reach out to the admin team.
+                </p>
+                <p style='margin-top: 20px;'>
+                    Best regards,<br/>
+                    <strong>The Admin Team</strong>
+                </p>
+            </div>";
+
+                await _emailSender.SendEmailAsync(user.Email, subject, body);
+
                 TempData["SuccessMessage"] = "Registration successful!";
                 return RedirectToAction("Registration", "Account");
             }
 
-            // If the creation fails, show error messages
-            foreach (var error in result.Errors)
-            {
-                ModelState.AddModelError(string.Empty, error.Description);
-            }
-
-            TempData["ErrorMessage"] = "Registration failed.";
+            ModelState.AddModelError(string.Empty, "Error creating user.");
+            await PopulateDropdowns(model);
             return View("Registration", model);
         }
-
-
 
         [HttpGet]
         [AllowAnonymous]
@@ -515,6 +626,8 @@ namespace StudentManagement.Controllers
 				.Include(cr => cr.Class)   // Include Class details
 				.ToListAsync();
 
+		
+
 			// Map the data into ViewModels
 			var studentViewModels = students.Select(user =>
 			{
@@ -529,6 +642,7 @@ namespace StudentManagement.Controllers
 					PhoneNumber = user.PhoneNumber,
 					Address = user.Address,
 					DateOfBirth = user.DateOfBirth,
+			
 					GardianName = user.GardianName,
 					Grades = new List<SelectListItem>
 			{
@@ -841,57 +955,52 @@ namespace StudentManagement.Controllers
 			return View(RegistrationViewModel);
 		}
 
-		[HttpPost]
-		public IActionResult StudentDelete(RegistrationViewModel model)
-		{
-			if (ModelState.IsValid)
-			{
-				var existingUser = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
-				if (existingUser == null)
-				{
-					TempData["ErrorMessage"] = "Student not found.";
+        [HttpPost]
+        public IActionResult StudentDelete(RegistrationViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var existingUser = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
+                if (existingUser == null)
+                {
+                    TempData["ErrorMessage"] = "Student not found.";
+                    return RedirectToAction("StudentView");
+                }
 
-					return RedirectToAction("StudentView");
-				}
+                // Remove related MarksDetail records if any (to avoid foreign key constraint issues)
+                var relatedMarks = _context.MarksDetail.Where(m => m.UserID == existingUser.Id).ToList();
+                if (relatedMarks.Any())
+                {
+                    _context.MarksDetail.RemoveRange(relatedMarks);
+                }
 
-			
+                // Remove or update UserAcadamic (academic record) before removing user
+                var existingAcademicRecord = _context.UserAcadamic.FirstOrDefault(ua => ua.UserID == existingUser.Id);
+                if (existingAcademicRecord != null)
+                {
+                    _context.UserAcadamic.Remove(existingAcademicRecord);
+                }
 
-
-				// Update or create UserAcademic entry
-				var existingAcademicRecord = _context.UserAcadamic.FirstOrDefault(ua => ua.UserID == existingUser.Id);
-				if (existingAcademicRecord == null)
-				{
-					_context.UserAcadamic.Add(new ClassRegistrationModel
-					{
-						UserID = existingUser.Id, // No need for ToString() as it's already a string
-						GradeId = model.GradeId,
-						ClassId = model.ClassId,
-
-					});
-				}
-				else
-				{
-					existingAcademicRecord.GradeId = model.GradeId;
-					existingAcademicRecord.ClassId = model.ClassId;
-					_context.UserAcadamic.Remove(existingAcademicRecord);
-				}
-
+                // Remove the user
                 _context.Users.Remove(existingUser);
+
+                // Save changes to the database
                 _context.SaveChanges();
 
-				return RedirectToAction("StudentView");
-			}
+                return RedirectToAction("StudentView");
+            }
 
-			// Reload grade and class dropdowns if the model state is invalid
-			model.Grades = _context.Grades
-				.Select(g => new SelectListItem { Value = g.ID.ToString(), Text = g.Grade.ToString() }).ToList();
+            // Reload grade and class dropdowns if the model state is invalid
+            model.Grades = _context.Grades
+                .Select(g => new SelectListItem { Value = g.ID.ToString(), Text = g.Grade.ToString() }).ToList();
 
-			model.Classes = _context.Class
-				.Where(c => c.GradeId == model.GradeId)
-				.Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Class }).ToList();
+            model.Classes = _context.Class
+                .Where(c => c.GradeId == model.GradeId)
+                .Select(c => new SelectListItem { Value = c.Id.ToString(), Text = c.Class }).ToList();
 
-			return View(model);
-		}
+            return View(model);
+        }
+
 
         public IActionResult studentback()
         {
