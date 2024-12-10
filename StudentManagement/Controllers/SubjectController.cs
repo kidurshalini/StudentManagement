@@ -177,7 +177,7 @@ namespace StudentManagement.Controllers
 
                     if (existingClass != null)
                     {
-                        TempData["ErrorMessage"] = "This subject for the selected grade has already been entered.";
+                        TempData["ErrorMessage"] = "This Class for the selected grade has already been entered.";
                         // Repopulate the dropdown list in case of error
                         model.Grades = _context.Grades
                             .Select(g => new SelectListItem
@@ -206,7 +206,7 @@ namespace StudentManagement.Controllers
                 catch (Exception ex)
                 {
                     Console.WriteLine($"Error: {ex.Message}");
-                    TempData["ErrorMessage"] = "An error occurred while saving the subject.";
+                    TempData["ErrorMessage"] = "An error occurred while saving the Class.";
                 }
             }
             else
@@ -645,5 +645,6 @@ public IActionResult ClassView(string searchQuery)
         {
             return RedirectToAction("ViewSubject");
         }
-    }
+
+	}
 }

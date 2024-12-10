@@ -8,6 +8,8 @@ using System.Text;
 using DinkToPdf;
 using DinkToPdf.Contracts;
 using System;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.UI.Services;
 
 
 namespace StudentManagement.Controllers
@@ -15,11 +17,12 @@ namespace StudentManagement.Controllers
     public class MarksController : Controller
     {
         private readonly ApplicationDbContext _context;
-
-        public MarksController(ApplicationDbContext context)
+		private readonly IEmailSender _emailSender;
+		public MarksController(ApplicationDbContext context, IEmailSender emailSender)
         {
             _context = context;
-        }
+			_emailSender = emailSender;
+		}
         private async Task PopulateDropdowns(MarksViewModel model, Guid? selectedGradeId = null)
         {
             model.Grades = await _context.Grades
@@ -160,7 +163,7 @@ namespace StudentManagement.Controllers
         }
 
         [HttpPost]
-        public IActionResult MarksFormSubmit(MarksViewModel model)
+        public async Task<IActionResult> MarksFormSubmitAsync(MarksViewModel model)
         {
             if (model == null || model.SubjectMarks == null || !model.SubjectMarks.Any())
             {
@@ -178,11 +181,19 @@ namespace StudentManagement.Controllers
                 return RedirectToAction("MarksForm");
             }
 
+			var user = _context.Users
+			   .FirstOrDefault(u => u.Id == model.UserID);
 
-            foreach (var entry in model.SubjectMarks)
+			var email = user.Email;
+            var FullName = user.FullName;
+
+			foreach (var entry in model.SubjectMarks)
             {
-                var marksDetails = new MarksModel
+			
+
+				var marksDetails = new MarksModel
                 {
+
                     Id = Guid.NewGuid(),
                     UserID = model.UserID,
                     Term = model.Term,
@@ -195,9 +206,31 @@ namespace StudentManagement.Controllers
                 _context.MarksDetail.Add(marksDetails);
             }
 
+
             _context.SaveChanges();
 
-            TempData["SuccessMessage"] = "Marks submitted successfully!";
+			// Send email to the user
+			var subject = $"Result Relesed {model.Term}";
+			var body = $@"
+            <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
+                <h2 style='color: #007BFF;'>Hi {user.FullName}!</h2>
+                <p>
+                    Your {model.Term} Result Released Now!. You can view your result in application. 
+                </p>
+              
+                <p>
+                    Please ensure you keep this information safe and confidential. If you have any questions or require assistance, do not hesitate to reach out to the admin team.
+                </p>
+                <p style='margin-top: 20px;'>
+                    Best regards,<br/>
+                    <strong>The Admin Team</strong>
+                </p>
+            </div>";
+
+			await _emailSender.SendEmailAsync(user.Email, subject, body);
+
+
+			TempData["SuccessMessage"] = "Marks submitted successfully!";
             return RedirectToAction("MarksForm");
         }
 

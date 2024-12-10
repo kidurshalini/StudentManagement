@@ -395,10 +395,10 @@ namespace StudentManagement.Controllers
                 }
 
                 // Send email to the user
-                var subject = "Welcome to the Student Management System!";
+                var subject = "Welcome to the Sheffield International School Management Application!";
                 var body = $@"
             <div style='font-family: Arial, sans-serif; line-height: 1.6; color: #333;'>
-                <h2 style='color: #007BFF;'>Welcome to the Student Management System, {user.FullName}!</h2>
+                <h2 style='color: #007BFF;'>Dear {user.FullName}!</h2>
                 <p>
                     We are delighted to inform you that your account has been successfully created. Below are your account details:
                 </p>
