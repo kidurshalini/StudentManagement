@@ -155,8 +155,7 @@ namespace StudentManagement.Controllers
 
         public IActionResult SubmitFeedback(ContactViewModel model)
         {
-            if (
-                !ModelState.IsValid)
+            if ( !ModelState.IsValid)
             {
                 // If the validation fails, return the same view with the model and errors
                 TempData["ErrorMessage"] = "Please fill in all required fields.";

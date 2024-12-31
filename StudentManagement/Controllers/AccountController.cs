@@ -789,24 +789,41 @@ namespace StudentManagement.Controllers
         [HttpPost]
         public IActionResult TeacherDelete(RegistrationViewModel model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                // Retrieve the existing teacher from the database
-                var existingTeacherRecord = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
-
-                if (existingTeacherRecord == null)
+                if (ModelState.IsValid)
                 {
-                    TempData["ErrorMessage"] = "Teacher not found.";
-                    return RedirectToAction("TeacherList"); // Redirect to the teacher list page if not found
+                    // Retrieve the existing teacher from the database
+                    var existingTeacherRecord = _context.Users.FirstOrDefault(u => u.Id == model.ID.ToString());
+
+                    if (existingTeacherRecord == null)
+                    {
+                        TempData["ErrorMessage"] = "Teacher not found.";
+                        return RedirectToAction("TeacherList"); // Redirect to the teacher list page if not found
+                    }
+
+                    // Retrieve and delete related records
+                    var relatedClassRegistrations = _context.contactModel
+                        .Where(cr => cr.UserID == model.ID.ToString())
+                        .ToList();
+
+                    if (relatedClassRegistrations.Any())
+                    {
+                        _context.contactModel.RemoveRange(relatedClassRegistrations);
+                    }
+
+                    // After related records are deleted, delete the teacher record
+                    _context.Users.Remove(existingTeacherRecord);
+                    _context.SaveChanges();
+
+                    TempData["SuccessMessage"] = "Teacher deleted successfully.";
+                    return RedirectToAction("TeacherView"); // Redirect to the teacher view page after successful deletion
                 }
-
-             
-
-                _context.Users.Remove(existingTeacherRecord);
-                _context.SaveChanges();
-
-
-                return RedirectToAction("TeacherView"); // Redirect to teacher view page after successful update
+            }
+            catch (Exception e)
+            {
+                TempData["ErrorMessage"] = $"An error occurred: {e.Message}";
+                // Log the exception if necessary for debugging
             }
 
             return View(model); // Return to the view if the model is invalid
